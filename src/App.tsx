@@ -14,14 +14,16 @@ function App() {
   const { getItemCount } = useCartStore();
   useTelegram(activeTab, setActiveTab);
 
+  const goHome = () => setActiveTab('home');
+
   const renderPage = () => {
     switch (activeTab) {
       case 'home':
         return <HomePage />;
       case 'cart':
-        return <CartPage />;
+        return <CartPage onNavigateHome={goHome} />;
       case 'orders':
-        return <OrdersPage />;
+        return <OrdersPage onNavigateHome={goHome} />;
       case 'profile':
         return <ProfilePage />;
     }
