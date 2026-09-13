@@ -1,0 +1,114 @@
+import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
+
+interface TelegramWebApp {
+  ready: () => void;
+  expand: () => void;
+  close: () => void;
+  MainButton: {
+    text: string;
+    show: () => void;
+    hide: () => void;
+    onClick: (cb: () => void) => void;
+    offClick: (cb: () => void) => void;
+  };
+  BackButton: {
+    show: () => void;
+    hide: () => void;
+    onClick: (cb: () => void) => void;
+    offClick: (cb: () => void) => void;
+  };
+  HapticFeedback: {
+    impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
+    notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
+    selectionChanged: () => void;
+  };
+  enableClosingConfirmation: () => void;
+  disableClosingConfirmation: () => void;
+  setHeaderColor: (color: string) => void;
+  setBackgroundColor: (color: string) => void;
+  onEvent: (event: string, cb: () => void) => void;
+  offEvent: (event: string, cb: () => void) => void;
+  themeParams: {
+    bg_color?: string;
+    text_color?: string;
+    hint_color?: string;
+    button_color?: string;
+    button_text_color?: string;
+    secondary_bg_color?: string;
+  };
+  sendData: (data: string) => void;
+}
+
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: TelegramWebApp;
+    };
+  }
+}
+
+type Tab = 'home' | 'cart' | 'orders' | 'profile';
+
+const tabOrder: Tab[] = ['home', 'cart', 'orders', 'profile'];
+
+export function useTelegram(
+  activeTab?: Tab,
+  setActiveTab?: Dispatch<SetStateAction<Tab>>,
+) {
+  const tgRef = useRef<TelegramWebApp | null>(null);
+
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation();
+
+    const root = document.documentElement;
+    const p = tg.themeParams;
+    if (p) {
+      if (p.bg_color) root.style.setProperty('--tg-bg', p.bg_color);
+      if (p.text_color) root.style.setProperty('--tg-text', p.text_color);
+      if (p.hint_color) root.style.setProperty('--tg-hint', p.hint_color);
+      if (p.button_color) root.style.setProperty('--tg-btn', p.button_color);
+      if (p.button_text_color) root.style.setProperty('--tg-btn-text', p.button_text_color);
+      if (p.secondary_bg_color) root.style.setProperty('--tg-card', p.secondary_bg_color);
+      root.classList.add('tg-theme');
+    }
+
+    const bgColor = p?.bg_color ?? '#0D0D0F';
+    tg.setHeaderColor(bgColor);
+    tg.setBackgroundColor(bgColor);
+
+    tgRef.current = tg;
+
+    return () => {
+      root.classList.remove('tg-theme');
+      tgRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const tg = tgRef.current;
+    if (!tg || !setActiveTab) return;
+
+    const handleBack = () => {
+      if (!activeTab) return;
+      const idx = tabOrder.indexOf(activeTab);
+      if (idx > 0) {
+        setActiveTab(tabOrder[idx - 1]);
+      }
+    };
+
+    tg.BackButton.show();
+    tg.BackButton.onClick(handleBack);
+
+    return () => {
+      tg.BackButton.offClick(handleBack);
+      tg.BackButton.hide();
+    };
+  }, [activeTab, setActiveTab]);
+
+  return { tg: tgRef };
+}
