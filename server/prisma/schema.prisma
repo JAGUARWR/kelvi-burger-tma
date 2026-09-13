@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  userId     BigInt   @map("user_id")
+  username   String?
+  firstName  String?  @map("first_name")
+  items      String   // JSON: [{ id, name, price, quantity, weight? }]
+  totalPrice Int      @map("total_price")
+  orderType  String   @default("dine_in") @map("order_type") // "takeaway" | "dine_in"
+  status     String   @default("new") // "new" | "cooking" | "ready" | "completed" | "cancelled"
+  cookMessageId Int?  @map("cook_message_id") // message_id карточки в чате поваров
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("orders")
+}

@@ -1,25 +1,52 @@
+import { useEffect } from 'react';
 import { ClipboardList } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { useOrderStore } from '../store/orderStore';
+import type { OrderStatus } from '../types';
 
 interface OrdersPageProps {
   onNavigateHome?: () => void;
 }
 
-const statusLabels = {
-  pending: 'Ожидает',
-  preparing: 'Готовится',
+const statusLabels: Record<OrderStatus, string> = {
+  new: 'Новый',
+  cooking: 'Готовится',
   ready: 'Готов',
+  completed: 'Выдан',
+  cancelled: 'Отменён',
 };
 
-const statusBadgeStyles: Record<string, { background: string; color: string }> = {
-  pending: { background: 'rgba(255, 179, 0, 0.15)', color: '#FFB300' },
-  preparing: { background: 'rgba(66, 133, 244, 0.15)', color: '#6EA8FE' },
+const statusBadgeStyles: Record<OrderStatus, { background: string; color: string }> = {
+  new: { background: 'rgba(255, 179, 0, 0.15)', color: '#FFB300' },
+  cooking: { background: 'rgba(66, 133, 244, 0.15)', color: '#6EA8FE' },
   ready: { background: 'rgba(52, 211, 153, 0.15)', color: '#34D399' },
+  completed: { background: 'rgba(160, 160, 160, 0.15)', color: '#A0A0A0' },
+  cancelled: { background: 'rgba(239, 83, 80, 0.15)', color: '#EF5350' },
 };
 
 export function OrdersPage({ onNavigateHome }: OrdersPageProps) {
-  const { orders } = useOrderStore();
+  const { orders, loading, loadOrders } = useOrderStore();
+
+  useEffect(() => {
+    const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    if (userId) {
+      loadOrders(userId);
+    }
+  }, [loadOrders]);
+
+  if (loading) {
+    return (
+      <div className="pb-[70px] animate-fade-slide-in flex flex-col">
+        <Header />
+        <div
+          className="flex items-center justify-center"
+          style={{ minHeight: 'calc(100dvh - 160px)' }}
+        >
+          <p style={{ fontSize: 14, color: '#8A8A8E' }}>Загрузка заказов...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (orders.length === 0) {
     return (
@@ -86,7 +113,7 @@ export function OrdersPage({ onNavigateHome }: OrdersPageProps) {
           >
             <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
               <time style={{ fontSize: 12, color: '#8A8A8E' }}>
-                {order.createdAt}
+                #{order.id} &middot; {order.createdAt}
               </time>
               <span
                 style={{
@@ -104,17 +131,19 @@ export function OrdersPage({ onNavigateHome }: OrdersPageProps) {
             <div className="flex flex-col" style={{ gap: 8, marginBottom: 10 }}>
               {order.items.map(({ item, quantity }, idx) => (
                 <div key={idx} className="flex items-center" style={{ gap: 10 }}>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    width={40}
-                    height={40}
-                    className="shrink-0 object-cover"
-                    style={{ width: 40, height: 40, borderRadius: 10 }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      width={40}
+                      height={40}
+                      className="shrink-0 object-cover"
+                      style={{ width: 40, height: 40, borderRadius: 10 }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  )}
                   <span style={{ fontSize: 14, color: '#FFFFFF' }}>
                     {item.name} &times;&nbsp;{quantity}
                   </span>

@@ -1,9 +1,19 @@
-import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+
+interface TelegramUser {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  language_code?: string;
+}
 
 interface TelegramWebApp {
   ready: () => void;
   expand: () => void;
   close: () => void;
+  initData: string;
+  initDataUnsafe: { user?: TelegramUser };
   MainButton: {
     text: string;
     show: () => void;
@@ -56,6 +66,9 @@ export function useTelegram(
   setActiveTab?: Dispatch<SetStateAction<Tab>>,
 ) {
   const tgRef = useRef<TelegramWebApp | null>(null);
+  const [user] = useState<TelegramUser | null>(
+    () => window.Telegram?.WebApp?.initDataUnsafe?.user ?? null,
+  );
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
@@ -110,5 +123,5 @@ export function useTelegram(
     };
   }, [activeTab, setActiveTab]);
 
-  return { tg: tgRef };
+  return { tg: tgRef, user };
 }

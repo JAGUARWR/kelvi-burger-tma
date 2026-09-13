@@ -20,10 +20,12 @@ export interface CartItem {
   quantity: number;
 }
 
+export type OrderStatus = 'new' | 'cooking' | 'ready' | 'completed' | 'cancelled';
+
 export interface Order {
-  id: string;
+  id: number;
   items: CartItem[];
   total: number;
-  status: 'pending' | 'preparing' | 'ready';
+  status: OrderStatus;
   createdAt: string;
 }

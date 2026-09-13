@@ -10,14 +10,18 @@ interface CartPageProps {
 
 export function CartPage({ onNavigateHome }: CartPageProps) {
   const { items, updateQuantity, removeItem, getTotal, clearCart } = useCartStore();
-  const { addOrder } = useOrderStore();
+  const { addOrder, submitting, error, clearError } = useOrderStore();
   const [confirmClear, setConfirmClear] = useState(false);
 
-  const handleOrder = () => {
-    const orderItems = items.map(({ item, quantity }) => ({ item, quantity }));
-    addOrder(orderItems, getTotal());
-    clearCart();
-    window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+  const handleOrder = async () => {
+    if (submitting) return;
+    const ok = await addOrder(items, 'dine_in');
+    if (ok) {
+      clearCart();
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+    } else {
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
+    }
   };
 
   const handleClearClick = () => {
@@ -193,6 +197,11 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
           zIndex: 40,
         }}
       >
+        {error && (
+          <p onClick={clearError} style={{ fontSize: 12, color: '#EF5350', marginBottom: 8, cursor: 'pointer' }}>
+            {error}
+          </p>
+        )}
         <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
           <span style={{ fontSize: 15, color: '#8A8A8E' }}>Итого:</span>
           <span className="tabular-nums" style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF' }}>
@@ -201,20 +210,22 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
         </div>
         <button
           onClick={handleOrder}
+          disabled={submitting}
           className="active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:outline-none"
           style={{
             width: '100%',
-            background: '#E65100',
+            background: submitting ? '#8D4004' : '#E65100',
             color: '#FFFFFF',
             height: 44,
             borderRadius: 14,
             fontSize: 15,
             fontWeight: 600,
             border: 'none',
-            cursor: 'pointer',
+            cursor: submitting ? 'not-allowed' : 'pointer',
+            opacity: submitting ? 0.7 : 1,
           }}
         >
-          Оформить заказ
+          {submitting ? 'Оформляем...' : 'Оформить заказ'}
         </button>
         <button
           onClick={handleClearClick}
