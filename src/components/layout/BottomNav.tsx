@@ -33,21 +33,31 @@ export function BottomNav({ activeTab, onTabChange, cartCount }: BottomNavProps)
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center flex-1 transition-all duration-200 active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none ${
+              className={`flex flex-col items-center justify-center flex-1 transition-all duration-200 active:scale-95 focus-visible:outline-none ${
                 isActive ? 'text-accent' : 'text-text-secondary'
               }`}
             >
-              <Icon className="w-[22px] h-[22px]" strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
+              <div style={{ position: 'relative', display: 'inline-flex' }}>
+                <Icon className="w-[22px] h-[22px]" strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
+                {tab.id === 'cart' && cartCount > 0 && (
+                  <span
+                    className="bg-red-500 text-white font-bold rounded-full flex items-center justify-center"
+                    style={{
+                      position: 'absolute',
+                      top: -4,
+                      right: -8,
+                      width: 16,
+                      height: 16,
+                      fontSize: 10,
+                      fontWeight: 700,
+                    }}
+                    aria-label={`${cartCount} товаров в корзине`}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </div>
               <span className="font-medium" style={{ fontSize: 11, marginTop: 3 }}>{tab.label}</span>
-              {tab.id === 'cart' && cartCount > 0 && (
-                <span
-                  className="absolute bg-red-500 text-white font-bold rounded-full flex items-center justify-center"
-                  style={{ fontSize: 9, top: 4, right: 'calc(50% - 22px)', minWidth: 16, height: 16, padding: '0 3px' }}
-                  aria-label={`${cartCount} товаров в корзине`}
-                >
-                  {cartCount}
-                </span>
-              )}
             </button>
           );
         })}

@@ -84,9 +84,10 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   }
 
   return (
-    <div className="animate-fade-slide-in flex flex-col" style={{ paddingBottom: 160 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 80px)', overflow: 'hidden', background: 'transparent' }}>
       <Header />
-      <div className="px-4 pt-5 flex flex-col" style={{ gap: 12 }}>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', paddingBottom: 180 }}>
         {items.map(({ item, quantity }) => (
           <div
             key={item.id}
@@ -94,6 +95,9 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
               background: '#1C1C1E',
               borderRadius: 18,
               padding: 14,
+              width: '100%',
+              boxSizing: 'border-box',
+              marginBottom: 12,
             }}
           >
             <div className="flex" style={{ gap: 12 }}>
@@ -184,17 +188,13 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
 
       <div
         style={{
-          position: 'fixed',
-          bottom: 65,
-          left: 16,
-          right: 16,
-          background: 'rgba(28, 28, 30, 0.95)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          padding: 14,
+          width: 'calc(100% - 32px)',
+          margin: '0 auto',
+          marginBottom: 16,
+          background: '#1C1C1E',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: 20,
-          border: '1px solid rgba(255,255,255,0.08)',
-          zIndex: 40,
+          padding: '14px 16px',
         }}
       >
         {error && (
@@ -217,7 +217,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
             background: submitting ? '#8D4004' : '#E65100',
             color: '#FFFFFF',
             height: 44,
-            borderRadius: 14,
+            borderRadius: 12,
             fontSize: 15,
             fontWeight: 600,
             border: 'none',
@@ -236,7 +236,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
             fontSize: 12,
             color: confirmClear ? '#E53935' : '#8A8A8E',
             textAlign: 'center',
-            marginTop: 6,
+            marginTop: 8,
             background: 'none',
             border: 'none',
             cursor: 'pointer',
