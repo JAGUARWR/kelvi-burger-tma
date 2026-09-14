@@ -1,6 +1,7 @@
 import { Bot, InlineKeyboard } from 'grammy';
 import type { OrderItemPayload } from '../types.js';
 import { prisma } from '../lib/prisma.js';
+import { completeOrder } from '../services/orderService.js';
 
 const BOT_TOKEN = process.env.BOT_TOKEN!;
 const COOKS_CHAT_ID = process.env.COOKS_CHAT_ID!;
@@ -8,7 +9,6 @@ const WEBAPP_URL = process.env.WEBAPP_URL || 'https://example.com';
 
 export const bot = new Bot(BOT_TOKEN);
 
-// /start — кнопка открытия WebApp
 bot.command('start', async (ctx) => {
   await ctx.reply('Добро пожаловать в КЭЛВИ! 🍔', {
     reply_markup: {
@@ -20,7 +20,6 @@ bot.command('start', async (ctx) => {
   });
 });
 
-// Формирование текста карточки заказа
 function formatCookCard(orderId: number, items: OrderItemPayload[], total: number, username?: string): string {
   const lines = items.map(
     (i) => `  • ${i.name}${i.weight ? ` (${i.weight})` : ''} × ${i.quantity} — ${i.price * i.quantity} ₽`
@@ -35,7 +34,6 @@ function formatCookCard(orderId: number, items: OrderItemPayload[], total: numbe
     .join('\n');
 }
 
-// Отправка карточки заказа в чат поваров
 export async function notifyCooks(
   orderId: number,
   items: OrderItemPayload[],
@@ -58,7 +56,6 @@ export async function notifyCooks(
   }
 }
 
-// Обновление карточки в чате поваров
 async function updateCookMessage(
   messageId: number,
   orderId: number,
@@ -101,28 +98,34 @@ async function updateCookMessage(
   }
 }
 
-// Обработка inline-кнопок поваров
+async function getOrderWithUser(orderId: number) {
+  return prisma.order.findUniqueOrThrow({
+    where: { id: orderId },
+    include: { user: true },
+  });
+}
+
 bot.on('callback_query:data', async (ctx) => {
   const data = ctx.callbackQuery.data;
   const cookUsername = ctx.from.username || String(ctx.from.id);
 
-  // Принять заказ
   const acceptMatch = data.match(/^accept_order_(\d+)$/);
   if (acceptMatch) {
     const orderId = Number(acceptMatch[1]);
-    const order = await prisma.order.update({
+    const order = await getOrderWithUser(orderId);
+
+    await prisma.order.update({
       where: { id: orderId },
       data: { status: 'cooking' },
     });
 
     const items: OrderItemPayload[] = JSON.parse(order.items);
     if (order.cookMessageId) {
-      await updateCookMessage(order.cookMessageId, orderId, 'cooking', items, order.totalPrice, order.username ?? undefined, cookUsername);
+      await updateCookMessage(order.cookMessageId, orderId, 'cooking', items, order.totalPrice, order.user.username ?? undefined, cookUsername);
     }
 
-    // Уведомление клиенту
     try {
-      await bot.api.sendMessage(Number(order.userId), `👨‍🍳 Ваш заказ #${orderId} готовится!`);
+      await bot.api.sendMessage(Number(order.user.telegramId), `👨‍🍳 Ваш заказ #${orderId} готовится!`);
     } catch (err) {
       console.error('Failed to notify client:', err);
     }
@@ -131,22 +134,23 @@ bot.on('callback_query:data', async (ctx) => {
     return;
   }
 
-  // Отклонить заказ
   const rejectMatch = data.match(/^reject_order_(\d+)$/);
   if (rejectMatch) {
     const orderId = Number(rejectMatch[1]);
-    const order = await prisma.order.update({
+    const order = await getOrderWithUser(orderId);
+
+    await prisma.order.update({
       where: { id: orderId },
       data: { status: 'cancelled' },
     });
 
     const items: OrderItemPayload[] = JSON.parse(order.items);
     if (order.cookMessageId) {
-      await updateCookMessage(order.cookMessageId, orderId, 'cancelled', items, order.totalPrice, order.username ?? undefined, cookUsername);
+      await updateCookMessage(order.cookMessageId, orderId, 'cancelled', items, order.totalPrice, order.user.username ?? undefined, cookUsername);
     }
 
     try {
-      await bot.api.sendMessage(Number(order.userId), `❌ К сожалению, заказ #${orderId} отклонён.`);
+      await bot.api.sendMessage(Number(order.user.telegramId), `❌ К сожалению, заказ #${orderId} отклонён.`);
     } catch (err) {
       console.error('Failed to notify client:', err);
     }
@@ -155,22 +159,23 @@ bot.on('callback_query:data', async (ctx) => {
     return;
   }
 
-  // Готов к выдаче
   const readyMatch = data.match(/^ready_order_(\d+)$/);
   if (readyMatch) {
     const orderId = Number(readyMatch[1]);
-    const order = await prisma.order.update({
+    const order = await getOrderWithUser(orderId);
+
+    await prisma.order.update({
       where: { id: orderId },
       data: { status: 'ready' },
     });
 
     const items: OrderItemPayload[] = JSON.parse(order.items);
     if (order.cookMessageId) {
-      await updateCookMessage(order.cookMessageId, orderId, 'ready', items, order.totalPrice, order.username ?? undefined);
+      await updateCookMessage(order.cookMessageId, orderId, 'ready', items, order.totalPrice, order.user.username ?? undefined);
     }
 
     try {
-      await bot.api.sendMessage(Number(order.userId), `✅ Ваш заказ #${orderId} готов к выдаче! Подойдите к стойке.`);
+      await bot.api.sendMessage(Number(order.user.telegramId), `✅ Ваш заказ #${orderId} готов к выдаче! Подойдите к стойке.`);
     } catch (err) {
       console.error('Failed to notify client:', err);
     }
@@ -179,18 +184,27 @@ bot.on('callback_query:data', async (ctx) => {
     return;
   }
 
-  // Выдан
   const completedMatch = data.match(/^completed_order_(\d+)$/);
   if (completedMatch) {
     const orderId = Number(completedMatch[1]);
-    const order = await prisma.order.update({
-      where: { id: orderId },
-      data: { status: 'completed' },
-    });
+    const orderWithUser = await getOrderWithUser(orderId);
+
+    const { order, newBalance } = await completeOrder(orderId);
 
     const items: OrderItemPayload[] = JSON.parse(order.items);
     if (order.cookMessageId) {
-      await updateCookMessage(order.cookMessageId, orderId, 'completed', items, order.totalPrice, order.username ?? undefined);
+      await updateCookMessage(order.cookMessageId, orderId, 'completed', items, order.totalPrice, orderWithUser.user.username ?? undefined);
+    }
+
+    if (order.bonusEarned > 0) {
+      try {
+        await bot.api.sendMessage(
+          Number(orderWithUser.user.telegramId),
+          `🎉 Заказ #${orderId} выполнен! Вам начислено ${order.bonusEarned} баллов КЭЛВИ. Ваш баланс: ${newBalance} Б`,
+        );
+      } catch (err) {
+        console.error('Failed to notify client about bonus:', err);
+      }
     }
 
     await ctx.answerCallbackQuery({ text: `Заказ #${orderId} выдан` });

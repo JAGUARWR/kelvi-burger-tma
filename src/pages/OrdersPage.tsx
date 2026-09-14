@@ -28,10 +28,7 @@ export function OrdersPage({ onNavigateHome }: OrdersPageProps) {
   const { orders, loading, loadOrders } = useOrderStore();
 
   useEffect(() => {
-    const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    if (userId) {
-      loadOrders(userId);
-    }
+    loadOrders();
   }, [loadOrders]);
 
   if (loading) {

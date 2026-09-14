@@ -22,15 +22,41 @@ export interface ApiOrderItem {
 export interface CreateOrderPayload {
   items: ApiOrderItem[];
   orderType: 'takeaway' | 'dine_in';
+  bonusToUse?: number;
 }
 
 export interface ApiOrder {
   id: number;
   items: ApiOrderItem[];
   totalPrice: number;
+  bonusUsed: number;
+  bonusEarned: number;
   orderType: string;
   status: 'new' | 'cooking' | 'ready' | 'completed' | 'cancelled';
   createdAt: string;
+}
+
+export interface ApiUserProfile {
+  id: number;
+  telegram_id: number;
+  first_name: string | null;
+  username: string | null;
+  phone: string | null;
+  address: string | null;
+  bonus_balance: number;
+}
+
+export async function fetchMe(): Promise<ApiUserProfile> {
+  const res = await fetch(`${API_BASE}/api/auth/me`, {
+    headers: headers(),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || `HTTP ${res.status}`);
+  }
+
+  return res.json();
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<ApiOrder> {
@@ -48,8 +74,8 @@ export async function createOrder(payload: CreateOrderPayload): Promise<ApiOrder
   return res.json();
 }
 
-export async function fetchUserOrders(userId: number): Promise<ApiOrder[]> {
-  const res = await fetch(`${API_BASE}/api/orders/user/${userId}`, {
+export async function fetchMyOrders(): Promise<ApiOrder[]> {
+  const res = await fetch(`${API_BASE}/api/orders/my`, {
     headers: headers(),
   });
 

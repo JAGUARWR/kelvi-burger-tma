@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import crypto from 'node:crypto';
+import { prisma } from '../lib/prisma.js';
 
 const BOT_TOKEN = process.env.BOT_TOKEN!;
 
@@ -10,17 +11,13 @@ interface TelegramWebAppUser {
   last_name?: string;
 }
 
-// Валидация initData из Telegram WebApp
-// https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
 export function validateInitData(initData: string): TelegramWebAppUser | null {
   const params = new URLSearchParams(initData);
   const hash = params.get('hash');
   if (!hash) return null;
 
-  // Удаляем hash из параметров для проверки
   params.delete('hash');
 
-  // Сортируем ключи и формируем data-check-string
   const dataCheckString = [...params.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => `${k}=${v}`)
@@ -48,7 +45,6 @@ export function validateInitData(initData: string): TelegramWebAppUser | null {
   }
 }
 
-// Middleware: извлекает и валидирует пользователя из initData в заголовке
 export function telegramAuth(req: Request, res: Response, next: NextFunction) {
   const initData = req.headers['x-telegram-init-data'] as string | undefined;
   if (!initData) {
@@ -64,4 +60,39 @@ export function telegramAuth(req: Request, res: Response, next: NextFunction) {
 
   (req as any).telegramUser = user;
   next();
+}
+
+export async function telegramAuthWithUser(req: Request, res: Response, next: NextFunction) {
+  const initData = req.headers['x-telegram-init-data'] as string | undefined;
+  if (!initData) {
+    res.status(401).json({ error: 'Missing x-telegram-init-data header' });
+    return;
+  }
+
+  const tgUser = validateInitData(initData);
+  if (!tgUser) {
+    res.status(403).json({ error: 'Invalid initData signature' });
+    return;
+  }
+
+  try {
+    const user = await prisma.user.upsert({
+      where: { telegramId: BigInt(tgUser.id) },
+      update: {
+        firstName: tgUser.first_name ?? undefined,
+        username: tgUser.username ?? undefined,
+      },
+      create: {
+        telegramId: BigInt(tgUser.id),
+        firstName: tgUser.first_name ?? null,
+        username: tgUser.username ?? null,
+      },
+    });
+
+    (req as any).user = user;
+    next();
+  } catch (err) {
+    console.error('Auth upsert error:', err);
+    res.status(500).json({ error: 'Auth failed' });
+  }
 }

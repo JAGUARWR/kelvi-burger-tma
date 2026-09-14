@@ -1,64 +1,125 @@
-import { User, Phone, MapPin, Settings, ChevronRight } from 'lucide-react';
+import { useEffect } from 'react';
+import { User, Phone, MapPin, Settings, ChevronRight, Flame } from 'lucide-react';
 import { Header } from '../components/layout/Header';
+import { useUserStore } from '../store/userStore';
 
 const profileMenuItems = [
-  { icon: Phone, label: '+7 (999) 123-45-67', subtitle: 'Телефон' },
-  { icon: MapPin, label: 'ул. Примерная, 123', subtitle: 'Адрес доставки' },
-  { icon: Settings, label: 'Настройки', subtitle: '' },
+  { icon: Phone, label: 'Телефон', getValue: (p: { phone: string | null }) => p.phone ?? '+7 (999) 123-45-67' },
+  { icon: MapPin, label: 'Адрес доставки', getValue: (p: { address: string | null }) => p.address ?? 'ул. Примерная, 123' },
+  { icon: Settings, label: 'Настройки', getValue: () => '' },
 ];
 
 export function ProfilePage() {
+  const { profile, loading, loadProfile } = useUserStore();
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const displayName = profile?.first_name ?? 'Гость';
+  const bonusBalance = profile?.bonus_balance ?? 0;
+
   return (
-    <div className="pb-[70px] animate-fade-slide-in flex flex-col">
+    <div
+      className="animate-fade-slide-in flex flex-col"
+      style={{
+        minHeight: 'calc(100vh - 80px)',
+        paddingBottom: 90,
+      }}
+    >
       <Header />
-      <div className="px-4 pt-5 flex flex-col">
+      <div className="pt-5 flex flex-col flex-1" style={{ paddingLeft: 16, paddingRight: 16 }}>
+        {/* User card */}
         <div
-          className="flex flex-col items-center justify-center text-center"
+          className="flex flex-col items-center text-center"
           style={{
             background: '#1C1C1E',
             borderRadius: 20,
-            padding: 20,
-            marginBottom: 16,
+            padding: '18px 16px',
+            marginBottom: 14,
+            border: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
           <div
             className="flex items-center justify-center"
             style={{
-              width: 72,
-              height: 72,
+              width: 64,
+              height: 64,
               borderRadius: '50%',
-              background: 'rgba(255, 107, 0, 0.15)',
-              border: '1.5px solid rgba(255, 107, 0, 0.4)',
+              background: 'rgba(255, 107, 0, 0.12)',
             }}
           >
-            <User style={{ width: 32, height: 32, color: '#FF6B00' }} strokeWidth={1.5} aria-hidden="true" />
+            <User style={{ width: 27, height: 27, color: '#FF6B00' }} strokeWidth={1.5} aria-hidden="true" />
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#FFFFFF', marginTop: 10 }}>
-            Гость
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#FFFFFF', marginTop: 8, marginBottom: 2 }}>
+            {loading ? '...' : displayName}
           </h2>
-          <p style={{ fontSize: 12, color: '#8A8A8E', marginTop: 4 }}>
+          <p style={{ fontSize: 12, color: '#8A8A8E', margin: 0 }}>
             Добро пожаловать в КЭЛВИ
           </p>
         </div>
 
-        <div className="flex flex-col" style={{ gap: 10 }}>
-          {profileMenuItems.map(({ icon: Icon, label, subtitle }) => (
+        {/* Loyalty card */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #252528 0%, #1c1c1e 60%, rgba(230, 81, 0, 0.25) 100%)',
+            borderRadius: 20,
+            border: '1px solid rgba(255, 107, 0, 0.3)',
+            padding: '18px 20px',
+            marginBottom: 14,
+          }}
+        >
+          <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <span style={{ fontSize: 14, color: '#A0A0A5' }}>КЭЛВИ Баллы</span>
+              <span
+                style={{
+                  background: 'rgba(255, 107, 0, 0.2)',
+                  color: '#FF6B00',
+                  fontSize: 11,
+                  padding: '2px 8px',
+                  borderRadius: 6,
+                  fontWeight: 500,
+                }}
+              >
+                5% кэшбэк
+              </span>
+            </div>
+            <Flame style={{ width: 22, height: 22, color: '#FF6B00' }} strokeWidth={1.8} aria-hidden="true" />
+          </div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: '#FFFFFF' }}>
+            {loading ? '...' : `${bonusBalance} Б`}
+          </div>
+          <p style={{ fontSize: 12, color: '#8A8A8E', marginTop: 8, margin: 0, lineHeight: 1.4 }}>
+            Копите баллы с каждого заказа и оплачивайте до 50% чека
+          </p>
+        </div>
+
+        {/* Settings group */}
+        <div
+          style={{
+            background: '#1C1C1E',
+            borderRadius: 20,
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            overflow: 'hidden',
+          }}
+        >
+          {profileMenuItems.map(({ icon: Icon, label, getValue }, i) => (
             <button
               key={label}
               onClick={() => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light')}
-              className="flex items-center justify-between active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none"
+              className="flex items-center w-full active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none"
               style={{
-                background: '#1C1C1E',
-                borderRadius: 16,
-                padding: '12px 16px',
-                minHeight: 56,
+                padding: '14px 16px',
+                background: 'transparent',
+                borderBottom: i < profileMenuItems.length - 1 ? '1px solid rgba(255, 255, 255, 0.06)' : 'none',
               }}
             >
               <div
                 className="flex items-center justify-center shrink-0"
                 style={{
-                  width: 38,
-                  height: 38,
+                  width: 36,
+                  height: 36,
                   borderRadius: 10,
                   background: 'rgba(255, 107, 0, 0.12)',
                 }}
@@ -68,11 +129,9 @@ export function ProfilePage() {
               </div>
               <div className="flex-1 min-w-0 text-left" style={{ marginLeft: 12 }}>
                 <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', display: 'block' }}>
-                  {label}
+                  {profile ? getValue(profile) : '...'}
                 </span>
-                {subtitle && (
-                  <span style={{ fontSize: 11, color: '#8A8A8E' }}>{subtitle}</span>
-                )}
+                <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block' }}>{label}</span>
               </div>
               <ChevronRight
                 style={{ width: 16, height: 16, color: '#636366', flexShrink: 0 }}
@@ -83,19 +142,21 @@ export function ProfilePage() {
           ))}
         </div>
 
+        {/* Info block — pushed to bottom */}
         <div
           className="text-center"
           style={{
             background: 'rgba(255, 255, 255, 0.03)',
             borderRadius: 14,
             padding: 12,
-            marginTop: 20,
+            marginTop: 'auto',
+            border: '1px dashed rgba(255, 255, 255, 0.08)',
           }}
         >
-          <p style={{ fontSize: 12, color: '#8A8A8E' }}>
+          <p style={{ fontSize: 12, color: '#8A8A8E', lineHeight: 1.4, margin: 0 }}>
             Самовывоз из ресторана КЭЛВИ
           </p>
-          <p style={{ fontSize: 12, color: '#8A8A8E', marginTop: 2 }}>
+          <p style={{ fontSize: 12, color: '#8A8A8E', lineHeight: 1.4, marginTop: 2 }}>
             Ежедневно с 10:00 до 22:00
           </p>
         </div>

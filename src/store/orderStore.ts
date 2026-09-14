@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Order, CartItem, OrderStatus } from '../types';
-import { createOrder, fetchUserOrders, type ApiOrder } from '../services/api';
+import { createOrder, fetchMyOrders, type ApiOrder } from '../services/api';
 
 function formatCreatedAt(iso: string): string {
   return new Intl.DateTimeFormat('ru-RU', {
@@ -39,8 +39,8 @@ interface OrderStore {
   loading: boolean;
   submitting: boolean;
   error: string | null;
-  addOrder: (items: CartItem[], orderType: 'takeaway' | 'dine_in') => Promise<boolean>;
-  loadOrders: (userId: number) => Promise<void>;
+  addOrder: (items: CartItem[], orderType: 'takeaway' | 'dine_in', bonusToUse?: number) => Promise<boolean>;
+  loadOrders: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -50,7 +50,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
   submitting: false,
   error: null,
 
-  addOrder: async (items, orderType) => {
+  addOrder: async (items, orderType, bonusToUse) => {
     set({ submitting: true, error: null });
     try {
       const payload = {
@@ -62,6 +62,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
           weight: item.weight,
         })),
         orderType,
+        bonusToUse: bonusToUse ?? 0,
       };
 
       const apiOrder = await createOrder(payload);
@@ -75,10 +76,10 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
     }
   },
 
-  loadOrders: async (userId) => {
+  loadOrders: async () => {
     set({ loading: true, error: null });
     try {
-      const apiOrders = await fetchUserOrders(userId);
+      const apiOrders = await fetchMyOrders();
       set({ orders: apiOrders.map(mapApiOrder), loading: false });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Не удалось загрузить заказы';
