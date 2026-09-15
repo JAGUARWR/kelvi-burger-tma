@@ -1,4 +1,4 @@
-import { Sandwich, Cookie, Salad, Soup, GlassWater } from 'lucide-react';
+import { Sandwich, Cookie, Soup, GlassWater } from 'lucide-react';
 import { categories } from '../../data/menu';
 import type { Category } from '../../types';
 
@@ -10,7 +10,6 @@ interface CategoryTabsProps {
 const categoryIcons: Record<Category, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   burgers: Sandwich,
   snacks: Cookie,
-  sides: Salad,
   sauces: Soup,
   drinks: GlassWater,
 };

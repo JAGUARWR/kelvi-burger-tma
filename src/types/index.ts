@@ -1,6 +1,6 @@
 export type Tag = 'hit' | 'spicy' | 'new' | 'veg';
 
-export type Category = 'burgers' | 'snacks' | 'sauces' | 'drinks' | 'sides';
+export type Category = 'burgers' | 'snacks' | 'sauces' | 'drinks';
 
 export interface MenuItem {
   id: string;

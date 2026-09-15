@@ -16,7 +16,6 @@ const badgeColors: Record<string, string> = {
 const categoryEmoji: Record<string, string> = {
   burgers: '🍔',
   snacks: '',
-  sides: '🍟',
   sauces: '🥫',
   drinks: '',
 };
