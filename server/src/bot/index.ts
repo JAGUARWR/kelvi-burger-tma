@@ -5,7 +5,6 @@ import { completeOrder } from '../services/orderService.js';
 
 const BOT_TOKEN = process.env.BOT_TOKEN!;
 const COOKS_CHAT_ID = process.env.COOKS_CHAT_ID!;
-const WEBAPP_URL = process.env.WEBAPP_URL || 'https://example.com';
 const TELEGRAM_API_ROOT = process.env.TELEGRAM_API_ROOT || 'https://api.telegram.org';
 
 export const bot = new Bot(BOT_TOKEN, {
@@ -19,8 +18,6 @@ bot.command('start', async (ctx) => {
   const firstName = ctx.from.first_name ?? 'друг';
 
   const existing = await prisma.user.findUnique({ where: { telegramId: tgId } });
-
-  const menuButton = new InlineKeyboard().url('Открыть меню 🍔', WEBAPP_URL);
 
   if (!existing) {
     await prisma.user.create({
@@ -36,17 +33,14 @@ bot.command('start', async (ctx) => {
       `Привет, ${firstName}! 🔥\n` +
       `Добро пожаловать в бургерную КЭЛВИ — настоящий жар улиц!\n\n` +
       `🎁 Вам начислено 200 приветственных бонусов (1 Б = 1 ₽)!\n` +
-      `Вы можете оплатить ими до 50% вашего первого заказа.\n\n` +
-      `Жмите кнопку ниже, чтобы открыть меню:`,
-      { reply_markup: menuButton },
+      `Вы можете оплатить ими до 50% вашего первого заказа.`,
     );
     return;
   }
 
   await ctx.reply(
     `С возвращением в КЭЛВИ, ${firstName}! Рады видеть вас снова.\n` +
-    `На вашем балансе: ${existing.bonusBalance} Б. Жмите кнопку ниже, чтобы сделать заказ!`,
-    { reply_markup: menuButton },
+    `На вашем балансе: ${existing.bonusBalance} Б.`,
   );
 });
 
