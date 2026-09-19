@@ -14,7 +14,7 @@ model User {
   username     String?
   phone        String?
   address      String?
-  bonusBalance Int      @default(0) @map("bonus_balance")
+  bonusBalance Int      @default(200) @map("bonus_balance")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   orders       Order[]

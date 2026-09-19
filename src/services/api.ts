@@ -56,7 +56,8 @@ export async function fetchMe(): Promise<ApiUserProfile> {
     throw new Error(body.error || `HTTP ${res.status}`);
   }
 
-  return res.json();
+  const data = await res.json();
+  return data.user;
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<ApiOrder> {
