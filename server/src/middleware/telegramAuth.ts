@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { prisma } from '../lib/prisma.js';
 
 const BOT_TOKEN = process.env.BOT_TOKEN!;
+const AUTH_MAX_AGE_SEC = Number(process.env.AUTH_MAX_AGE_SEC) || 86400;
 
 interface TelegramWebAppUser {
   id: number;
@@ -15,6 +16,15 @@ export function validateInitData(initData: string): TelegramWebAppUser | null {
   const params = new URLSearchParams(initData);
   const hash = params.get('hash');
   if (!hash) return null;
+
+  const authDate = params.get('auth_date');
+  if (!authDate) return null;
+
+  const authTimestamp = Number(authDate);
+  if (Number.isNaN(authTimestamp)) return null;
+
+  const age = Math.floor(Date.now() / 1000) - authTimestamp;
+  if (age < 0 || age > AUTH_MAX_AGE_SEC) return null;
 
   params.delete('hash');
 
@@ -54,7 +64,7 @@ export function telegramAuth(req: Request, res: Response, next: NextFunction) {
 
   const user = validateInitData(initData);
   if (!user) {
-    res.status(403).json({ error: 'Invalid initData signature' });
+    res.status(403).json({ error: 'Invalid or expired initData' });
     return;
   }
 
@@ -71,7 +81,7 @@ export async function telegramAuthWithUser(req: Request, res: Response, next: Ne
 
   const tgUser = validateInitData(initData);
   if (!tgUser) {
-    res.status(403).json({ error: 'Invalid initData signature' });
+    res.status(403).json({ error: 'Invalid or expired initData' });
     return;
   }
 

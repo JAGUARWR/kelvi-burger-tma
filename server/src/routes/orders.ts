@@ -1,81 +1,81 @@
 import { Router } from 'express';
-import { telegramAuth, telegramAuthWithUser } from '../middleware/telegramAuth.js';
+import { telegramAuthWithUser } from '../middleware/telegramAuth.js';
 import { createOrder, getUserOrders, completeOrder, updateOrderStatus } from '../services/orderService.js';
+import { createOrderSchema, updateStatusSchema } from '../validators/schemas.js';
+import { prisma } from '../lib/prisma.js';
 import type { Request } from 'express';
-import type { CreateOrderBody, OrderStatus } from '../types.js';
 
 const router = Router();
 
-const VALID_STATUSES: OrderStatus[] = ['new', 'cooking', 'ready', 'completed', 'cancelled'];
-
-// POST /api/orders — создание заказа
-router.post('/', telegramAuthWithUser, async (req: Request, res) => {
-  const body = req.body as CreateOrderBody;
-
-  if (!body.items?.length) {
-    res.status(400).json({ error: 'Cart is empty' });
-    return;
-  }
-
-  if (!['takeaway', 'dine_in'].includes(body.orderType)) {
-    res.status(400).json({ error: 'Invalid orderType' });
+router.post('/', telegramAuthWithUser, async (req: Request, res, next) => {
+  const parsed = createOrderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     return;
   }
 
   const user = (req as any).user;
 
   try {
-    const order = await createOrder(user, body);
+    const order = await createOrder(user, parsed.data);
     res.status(201).json(order);
   } catch (err) {
-    console.error('Create order error:', err);
-    res.status(500).json({ error: 'Failed to create order' });
+    next(err);
   }
 });
 
-// GET /api/orders/my — заказы текущего пользователя
-router.get('/my', telegramAuthWithUser, async (req: Request, res) => {
+router.get('/my', telegramAuthWithUser, async (req: Request, res, next) => {
   const user = (req as any).user;
 
   try {
     const orders = await getUserOrders(user.id);
     res.json(orders);
   } catch (err) {
-    console.error('Get orders error:', err);
-    res.status(500).json({ error: 'Failed to fetch orders' });
+    next(err);
   }
 });
 
-// PATCH /api/orders/:id/status — смена статуса (с начислением бонусов при completed)
-router.patch('/:id/status', telegramAuth, async (req: Request, res) => {
+router.patch('/:id/status', telegramAuthWithUser, async (req: Request, res, next) => {
   const orderId = Number(req.params.id);
   if (Number.isNaN(orderId)) {
     res.status(400).json({ error: 'Invalid order id' });
     return;
   }
 
-  const { status } = req.body as { status: OrderStatus };
-  if (!status || !VALID_STATUSES.includes(status)) {
-    res.status(400).json({ error: 'Invalid status' });
+  const parsed = updateStatusSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     return;
   }
 
+  const user = (req as any).user;
+
   try {
-    if (status === 'completed') {
-      const { order, newBalance } = await completeOrder(orderId);
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    if (order.userId !== user.id) {
+      res.status(403).json({ error: 'Access denied' });
+      return;
+    }
+
+    if (parsed.data.status === 'completed') {
+      const { order: updated, newBalance } = await completeOrder(orderId);
       res.json({
-        id: order.id,
-        status: order.status,
-        bonusEarned: order.bonusEarned,
+        id: updated.id,
+        status: updated.status,
+        bonusEarned: updated.bonusEarned,
         newBalance,
       });
     } else {
-      const order = await updateOrderStatus(orderId, status);
-      res.json({ id: order.id, status: order.status });
+      const updated = await updateOrderStatus(orderId, parsed.data.status);
+      res.json({ id: updated.id, status: updated.status });
     }
   } catch (err) {
-    console.error('Update status error:', err);
-    res.status(500).json({ error: 'Failed to update status' });
+    next(err);
   }
 });
 
