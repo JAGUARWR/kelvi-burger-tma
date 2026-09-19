@@ -6,8 +6,11 @@ import { completeOrder } from '../services/orderService.js';
 const BOT_TOKEN = process.env.BOT_TOKEN!;
 const COOKS_CHAT_ID = process.env.COOKS_CHAT_ID!;
 const WEBAPP_URL = process.env.WEBAPP_URL || 'https://example.com';
+const TELEGRAM_API_ROOT = process.env.TELEGRAM_API_ROOT || 'https://api.telegram.org';
 
-export const bot = new Bot(BOT_TOKEN);
+export const bot = new Bot(BOT_TOKEN, {
+  client: { apiRoot: TELEGRAM_API_ROOT },
+});
 
 bot.command('start', async (ctx) => {
   if (!ctx.from) return;
@@ -242,6 +245,8 @@ bot.on('callback_query:data', async (ctx) => {
 });
 
 export async function startBot() {
+  await bot.api.deleteWebhook({ drop_pending_updates: true });
+  console.log('Webhook deleted');
   bot.start();
   console.log('Bot started');
 }

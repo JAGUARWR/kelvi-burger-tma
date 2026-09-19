@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { User, Phone, MapPin, ChevronRight, Flame } from 'lucide-react';
+import { User, MapPin, Flame } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { useUserStore } from '../store/userStore';
 
@@ -10,19 +10,6 @@ function getDisplayName(): string {
   if (tgUser?.id) return String(tgUser.id);
   return 'Гость';
 }
-
-const profileMenuItems = [
-  {
-    icon: Phone,
-    label: 'Телефон',
-    getValue: (p: { phone: string | null }) => p.phone ?? 'Не указан',
-  },
-  {
-    icon: MapPin,
-    label: 'Адрес самовывоза',
-    getValue: (p: { address: string | null }) => p.address ?? 'Ресторан КЭЛВИ',
-  },
-];
 
 export function ProfilePage() {
   const { profile, loading, loadProfile } = useUserStore();
@@ -112,51 +99,37 @@ export function ProfilePage() {
           </p>
         </div>
 
-        {/* Info rows */}
+        {/* Address card */}
         <div
           style={{
             background: '#1C1C1E',
             borderRadius: 20,
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            overflow: 'hidden',
+            padding: '14px 16px',
           }}
         >
-          {profileMenuItems.map(({ icon: Icon, label, getValue }, i) => (
-            <button
-              key={label}
-              onClick={() => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light')}
-              className="flex items-center w-full active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none"
+          <div className="flex items-center">
+            <div
+              className="flex items-center justify-center shrink-0"
               style={{
-                padding: '14px 16px',
-                background: 'transparent',
-                borderBottom: i < profileMenuItems.length - 1 ? '1px solid rgba(255, 255, 255, 0.06)' : 'none',
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: 'rgba(255, 107, 0, 0.12)',
               }}
+              aria-hidden="true"
             >
-              <div
-                className="flex items-center justify-center shrink-0"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: 'rgba(255, 107, 0, 0.12)',
-                }}
-                aria-hidden="true"
-              >
-                <Icon style={{ width: 20, height: 20, color: '#FF6B00' }} strokeWidth={1.8} />
-              </div>
-              <div className="flex-1 min-w-0 text-left" style={{ marginLeft: 12 }}>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', display: 'block' }}>
-                  {profile ? getValue(profile) : '...'}
-                </span>
-                <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block' }}>{label}</span>
-              </div>
-              <ChevronRight
-                style={{ width: 16, height: 16, color: '#636366', flexShrink: 0 }}
-                strokeWidth={1.8}
-                aria-hidden="true"
-              />
-            </button>
-          ))}
+              <MapPin style={{ width: 20, height: 20, color: '#FF6B00' }} strokeWidth={1.8} />
+            </div>
+            <div className="flex-1 min-w-0" style={{ marginLeft: 12 }}>
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', display: 'block' }}>
+                ул. Мичурина, 12
+              </span>
+              <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block' }}>
+                Адрес самовывоза
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Info block */}
