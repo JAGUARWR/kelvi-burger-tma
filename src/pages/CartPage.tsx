@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Minus, Plus, Trash2, ShoppingCart, Clock } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart, Clock, Flame } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { useCartStore } from '../store/cartStore';
 import { useOrderStore } from '../store/orderStore';
@@ -38,11 +38,11 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
-  const total = getTotal();
-  const bonusBalance = profile?.bonus_balance ?? profile?.bonusBalance ?? 0;
-  const maxBonusUse = Math.min(bonusBalance, Math.floor(total / 2));
-  const bonusDiscount = useBonuses ? maxBonusUse : 0;
-  const finalTotal = total - bonusDiscount;
+  const subtotal = getTotal();
+  const bonusBalance = profile?.bonus_balance ?? profile?.bonusBalance ?? 200;
+  const maxBonusUse = Math.min(bonusBalance, Math.floor(subtotal / 2));
+  const bonusDiscount = useBonuses && maxBonusUse > 0 ? maxBonusUse : 0;
+  const finalTotal = subtotal - bonusDiscount;
 
   const handleOrder = async () => {
     if (submitting) return;
@@ -71,7 +71,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   if (showSuccess) {
     const displayTime = pickupMode === 'asap' ? '20–30 минут' : selectedTime;
     return (
-      <div className="pb-[70px] animate-fade-slide-in flex flex-col">
+      <div className="animate-fade-slide-in flex flex-col" style={{ minHeight: '100vh', paddingBottom: 110 }}>
         <Header />
         <div
           className="flex flex-col items-center justify-center text-center px-5"
@@ -129,7 +129,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
 
   if (items.length === 0) {
     return (
-      <div className="pb-[70px] animate-fade-slide-in flex flex-col">
+      <div className="animate-fade-slide-in flex flex-col" style={{ minHeight: '100vh', paddingBottom: 110 }}>
         <Header />
         <div
           className="flex flex-col items-center justify-center text-center px-5"
@@ -177,10 +177,11 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 80px)', overflow: 'hidden', background: 'transparent' }}>
+    <div className="animate-fade-slide-in" style={{ minHeight: '100vh', paddingBottom: 110 }}>
       <Header />
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', paddingBottom: 280 }}>
+      <div style={{ padding: '20px 16px 0' }}>
+        {/* Cart items */}
         {items.map(({ item, quantity }) => (
           <div
             key={item.id}
@@ -242,7 +243,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                 <button
                   onClick={() => updateQuantity(item.id, quantity - 1)}
                   aria-label={`Уменьшить количество ${item.name}`}
-                  className="flex items-center justify-center active:scale-90 transition-transform focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none"
+                  className="flex items-center justify-center active:scale-90 transition-transform"
                   style={{ width: 28, height: 28, borderRadius: '50%', background: '#2C2C2E' }}
                 >
                   <Minus style={{ width: 14, height: 14, color: '#FFFFFF' }} strokeWidth={2} aria-hidden="true" />
@@ -250,14 +251,13 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                 <span
                   className="tabular-nums"
                   style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', minWidth: 20, textAlign: 'center' }}
-                  aria-label={`Количество: ${quantity}`}
                 >
                   {quantity}
                 </span>
                 <button
                   onClick={() => updateQuantity(item.id, quantity + 1)}
                   aria-label={`Увеличить количество ${item.name}`}
-                  className="flex items-center justify-center active:scale-90 transition-transform focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none"
+                  className="flex items-center justify-center active:scale-90 transition-transform"
                   style={{ width: 28, height: 28, borderRadius: '50%', background: '#2C2C2E' }}
                 >
                   <Plus style={{ width: 14, height: 14, color: '#FFFFFF' }} strokeWidth={2} aria-hidden="true" />
@@ -268,7 +268,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                     window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
                   }}
                   aria-label={`Удалить ${item.name} из корзины`}
-                  className="flex items-center justify-center active:scale-90 transition-transform focus-visible:ring-2 focus-visible:ring-red-400/60 focus-visible:outline-none"
+                  className="flex items-center justify-center active:scale-90 transition-transform"
                   style={{ width: 28, height: 28, borderRadius: '50%', background: 'transparent' }}
                 >
                   <Trash2 style={{ width: 16, height: 16, color: '#636366' }} strokeWidth={1.8} aria-hidden="true" />
@@ -338,7 +338,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
             </button>
           </div>
 
-          {pickupMode === 'scheduled' && (
+          {pickupMode === 'scheduled' ? (
             <div
               className="flex"
               style={{
@@ -372,101 +372,105 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                 </button>
               ))}
             </div>
-          )}
-
-          {pickupMode === 'asap' && (
-            <p style={{ fontSize: 12, color: '#8A8A8E', margin: 0 }}>
-              ~20–30 минут
-            </p>
+          ) : (
+            <p style={{ fontSize: 12, color: '#8A8A8E', margin: 0 }}>~20–30 минут</p>
           )}
         </div>
 
-        {/* Bonus toggle */}
-        {bonusBalance > 0 && (
-          <div
-            style={{
-              background: '#1C1C1E',
-              borderRadius: 18,
-              border: '1px solid rgba(255,255,255,0.08)',
-              padding: 14,
-              marginBottom: 12,
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>
-                  Списать бонусы
-                </span>
-                <p style={{ fontSize: 12, color: '#8A8A8E', marginTop: 2, margin: 0 }}>
-                  Ваш баланс: {bonusBalance} Б · до 50% чека
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setUseBonuses(!useBonuses);
-                  window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
-                }}
+        {/* Bonus toggle — always visible */}
+        <div
+          style={{
+            background: '#1C1C1E',
+            borderRadius: 18,
+            border: '1px solid rgba(255,255,255,0.08)',
+            padding: 14,
+            marginTop: 12,
+            marginBottom: 12,
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <div
+                className="flex items-center justify-center"
                 style={{
-                  width: 48,
-                  height: 28,
-                  borderRadius: 14,
-                  border: 'none',
-                  cursor: 'pointer',
-                  background: useBonuses ? '#FF6B00' : '#2C2C2E',
-                  position: 'relative',
-                  transition: 'background 0.2s',
-                  flexShrink: 0,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: 'rgba(255, 107, 0, 0.12)',
                 }}
               >
-                <div
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    background: '#FFFFFF',
-                    position: 'absolute',
-                    top: 3,
-                    left: useBonuses ? 23 : 3,
-                    transition: 'left 0.2s',
-                  }}
-                />
-              </button>
+                <Flame style={{ width: 16, height: 16, color: '#FF6B00' }} strokeWidth={1.8} aria-hidden="true" />
+              </div>
+              <div>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', display: 'block' }}>
+                  Списать баллы
+                </span>
+                <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block', marginTop: 1 }}>
+                  Доступно: {bonusBalance} Б (макс. 50% чека)
+                </span>
+              </div>
             </div>
-            {useBonuses && maxBonusUse > 0 && (
+            <button
+              onClick={() => {
+                setUseBonuses(!useBonuses);
+                window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
+              }}
+              style={{
+                width: 48,
+                height: 28,
+                borderRadius: 14,
+                border: 'none',
+                cursor: 'pointer',
+                background: useBonuses ? '#FF6B00' : '#2C2C2E',
+                position: 'relative',
+                transition: 'background 0.2s',
+                flexShrink: 0,
+              }}
+            >
               <div
                 style={{
-                  marginTop: 10,
-                  paddingTop: 10,
-                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                  width: 22,
+                  height: 22,
+                  borderRadius: '50%',
+                  background: '#FFFFFF',
+                  position: 'absolute',
+                  top: 3,
+                  left: useBonuses ? 23 : 3,
+                  transition: 'left 0.2s',
                 }}
-              >
-                <div className="flex items-center justify-between">
-                  <span style={{ fontSize: 13, color: '#4CAF50' }}>
-                    Скидка баллами:
-                  </span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#4CAF50' }}>
-                    −{bonusDiscount} ₽
-                  </span>
-                </div>
-                <p style={{ fontSize: 11, color: '#8A8A8E', marginTop: 4, margin: 0 }}>
-                  Списываем {maxBonusUse} Б из {bonusBalance}
-                </p>
-              </div>
-            )}
+              />
+            </button>
           </div>
-        )}
+          {useBonuses && maxBonusUse > 0 && (
+            <div
+              style={{
+                marginTop: 10,
+                paddingTop: 10,
+                borderTop: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span style={{ fontSize: 13, color: '#FF6B00' }}>Скидка баллами:</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#FF6B00' }}>
+                  −{bonusDiscount} ₽
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Bottom summary */}
+      {/* Bottom summary — fixed at bottom above navbar */}
       <div
         style={{
-          position: 'absolute',
-          bottom: 0,
+          position: 'fixed',
+          bottom: 70,
           left: 0,
           right: 0,
-          padding: '0 16px 16px',
-          background: 'linear-gradient(to top, #0D0D0F 70%, transparent)',
-          paddingTop: 24,
+          padding: '0 16px 12px',
+          background: 'linear-gradient(to top, #0D0D0F 60%, transparent)',
+          paddingTop: 20,
+          zIndex: 50,
         }}
       >
         <div
@@ -477,23 +481,36 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
             padding: '14px 16px',
           }}
         >
-          {error && (
-            <p onClick={clearError} style={{ fontSize: 12, color: '#EF5350', marginBottom: 8, cursor: 'pointer' }}>
-              {error}
-            </p>
+          {/* Error badge — subtle, not alarming */}
+          {error && !submitting && (
+            <div
+              onClick={clearError}
+              style={{
+                background: 'rgba(239, 83, 80, 0.1)',
+                border: '1px solid rgba(239, 83, 80, 0.2)',
+                borderRadius: 10,
+                padding: '8px 12px',
+                marginBottom: 10,
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ fontSize: 12, color: '#EF5350' }}>
+                Не удалось отправить заказ. Нажмите, чтобы скрыть.
+              </span>
+            </div>
           )}
 
           <div className="flex items-center justify-between" style={{ marginBottom: 4 }}>
             <span style={{ fontSize: 14, color: '#8A8A8E' }}>Сумма заказа:</span>
             <span className="tabular-nums" style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>
-              {total}&nbsp;₽
+              {subtotal}&nbsp;₽
             </span>
           </div>
 
           {bonusDiscount > 0 && (
             <div className="flex items-center justify-between" style={{ marginBottom: 4 }}>
-              <span style={{ fontSize: 14, color: '#4CAF50' }}>Бонусы:</span>
-              <span className="tabular-nums" style={{ fontSize: 15, fontWeight: 500, color: '#4CAF50' }}>
+              <span style={{ fontSize: 14, color: '#FF6B00' }}>Скидка баллами:</span>
+              <span className="tabular-nums" style={{ fontSize: 15, fontWeight: 500, color: '#FF6B00' }}>
                 −{bonusDiscount}&nbsp;₽
               </span>
             </div>
@@ -516,15 +533,15 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
           <button
             onClick={handleOrder}
             disabled={submitting || (pickupMode === 'scheduled' && !selectedTime)}
-            className="active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:outline-none"
+            className="active:scale-[0.98] transition-transform"
             style={{
               width: '100%',
-              background: (submitting || (pickupMode === 'scheduled' && !selectedTime)) ? '#8D4004' : '#E65100',
+              background: (submitting || (pickupMode === 'scheduled' && !selectedTime)) ? '#8D4004' : '#FF6B00',
               color: '#FFFFFF',
-              height: 48,
+              height: 50,
               borderRadius: 14,
               fontSize: 16,
-              fontWeight: 600,
+              fontWeight: 700,
               border: 'none',
               cursor: (submitting || (pickupMode === 'scheduled' && !selectedTime)) ? 'not-allowed' : 'pointer',
               opacity: (submitting || (pickupMode === 'scheduled' && !selectedTime)) ? 0.7 : 1,
@@ -555,7 +572,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
 
           <button
             onClick={handleClearClick}
-            className="active:scale-[0.98] transition-all focus-visible:outline-none"
+            className="active:scale-[0.98] transition-all"
             style={{
               display: 'block',
               width: '100%',
@@ -575,9 +592,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
       </div>
 
       <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         div::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
