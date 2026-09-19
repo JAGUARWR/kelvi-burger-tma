@@ -1,12 +1,27 @@
 import { useEffect } from 'react';
-import { User, Phone, MapPin, Settings, ChevronRight, Flame } from 'lucide-react';
+import { User, Phone, MapPin, ChevronRight, Flame } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { useUserStore } from '../store/userStore';
 
+function getDisplayName(): string {
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  if (tgUser?.username) return `@${tgUser.username}`;
+  if (tgUser?.first_name) return tgUser.first_name;
+  if (tgUser?.id) return String(tgUser.id);
+  return 'Гость';
+}
+
 const profileMenuItems = [
-  { icon: Phone, label: 'Телефон', getValue: (p: { phone: string | null }) => p.phone ?? '+7 (999) 123-45-67' },
-  { icon: MapPin, label: 'Адрес доставки', getValue: (p: { address: string | null }) => p.address ?? 'ул. Примерная, 123' },
-  { icon: Settings, label: 'Настройки', getValue: () => '' },
+  {
+    icon: Phone,
+    label: 'Телефон',
+    getValue: (p: { phone: string | null }) => p.phone ?? 'Не указан',
+  },
+  {
+    icon: MapPin,
+    label: 'Адрес самовывоза',
+    getValue: (p: { address: string | null }) => p.address ?? 'Ресторан КЭЛВИ',
+  },
 ];
 
 export function ProfilePage() {
@@ -16,7 +31,9 @@ export function ProfilePage() {
     loadProfile();
   }, [loadProfile]);
 
-  const displayName = profile?.first_name ?? 'Гость';
+  const displayName = profile?.username
+    ? `@${profile.username}`
+    : profile?.first_name ?? getDisplayName();
   const bonusBalance = profile?.bonus_balance ?? 0;
 
   return (
@@ -91,11 +108,11 @@ export function ProfilePage() {
             {loading ? '...' : `${bonusBalance} Б`}
           </div>
           <p style={{ fontSize: 12, color: '#8A8A8E', marginTop: 8, margin: 0, lineHeight: 1.4 }}>
-            Копите баллы с каждого заказа и оплачивайте до 50% чека
+            1 Б = 1 ₽ • Копите с заказов и оплачивайте до 50% чека
           </p>
         </div>
 
-        {/* Settings group */}
+        {/* Info rows */}
         <div
           style={{
             background: '#1C1C1E',
@@ -142,7 +159,7 @@ export function ProfilePage() {
           ))}
         </div>
 
-        {/* Info block — pushed to bottom */}
+        {/* Info block */}
         <div
           className="text-center"
           style={{
