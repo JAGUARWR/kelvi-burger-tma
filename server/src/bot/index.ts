@@ -80,6 +80,30 @@ export async function notifyCooks(
   }
 }
 
+export async function notifyUser(
+  chatId: number,
+  orderId: number,
+  pickupTime: string,
+  totalPrice: number,
+  bonusUsed: number,
+) {
+  const timeLabel = pickupTime === 'asap' ? '20–30 минут' : pickupTime;
+  const bonusLine = bonusUsed > 0 ? `\n💵 Сумма: ${totalPrice} ₽ (списано ${bonusUsed} бонусов)` : `\n💵 Сумма: ${totalPrice} ₽`;
+
+  const text =
+    `🍔 Заказ #${orderId} успешно оплачен!\n` +
+    `⏰ Время готовности: ${timeLabel}\n` +
+    `📍 Самовывоз: ул. Мичурина, 12\n` +
+    `${bonusLine}\n\n` +
+    `Мы уже начали готовить, ждем вас!`;
+
+  try {
+    await bot.api.sendMessage(chatId, text);
+  } catch (err) {
+    console.error('Failed to notify user:', err);
+  }
+}
+
 async function updateCookMessage(
   messageId: number,
   orderId: number,

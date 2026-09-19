@@ -10,6 +10,8 @@ export interface CreateOrderBody {
   items: OrderItemPayload[];
   orderType: 'takeaway' | 'dine_in';
   bonusToUse?: number;
+  pickup_time?: string;
+  total_price?: number;
 }
 
 export type OrderStatus = 'new' | 'cooking' | 'ready' | 'completed' | 'cancelled';

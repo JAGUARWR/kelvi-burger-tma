@@ -12,6 +12,8 @@ export const createOrderSchema = z.object({
   items: z.array(orderItemSchema).min(1, 'Cart is empty'),
   orderType: z.enum(['takeaway', 'dine_in']),
   bonusToUse: z.number().int().nonnegative().optional().default(0),
+  pickup_time: z.string().optional().default('asap'),
+  total_price: z.number().int().nonnegative().optional(),
 });
 
 export const updateStatusSchema = z.object({

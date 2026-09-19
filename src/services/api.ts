@@ -23,6 +23,8 @@ export interface CreateOrderPayload {
   items: ApiOrderItem[];
   orderType: 'takeaway' | 'dine_in';
   bonusToUse?: number;
+  pickup_time?: string;
+  total_price?: number;
 }
 
 export interface ApiOrder {
@@ -32,6 +34,7 @@ export interface ApiOrder {
   bonusUsed: number;
   bonusEarned: number;
   orderType: string;
+  pickupTime?: string;
   status: 'new' | 'cooking' | 'ready' | 'completed' | 'cancelled';
   createdAt: string;
 }

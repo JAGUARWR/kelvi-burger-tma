@@ -46,7 +46,8 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
 
   const handleOrder = async () => {
     if (submitting) return;
-    const ok = await addOrder(items, 'dine_in', bonusDiscount);
+    const pt = pickupMode === 'asap' ? 'asap' : selectedTime;
+    const ok = await addOrder(items, 'dine_in', bonusDiscount, pt);
     if (ok) {
       clearCart();
       window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');

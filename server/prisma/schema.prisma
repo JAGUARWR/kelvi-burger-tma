@@ -30,6 +30,7 @@ model Order {
   bonusUsed     Int      @default(0) @map("bonus_used")
   bonusEarned   Int      @default(0) @map("bonus_earned")
   orderType     String   @default("dine_in") @map("order_type") // "takeaway" | "dine_in"
+  pickupTime    String   @default("asap") @map("pickup_time")
   status        String   @default("new") // "new" | "cooking" | "ready" | "completed" | "cancelled"
   cookMessageId Int?     @map("cook_message_id")
   createdAt     DateTime @default(now()) @map("created_at")

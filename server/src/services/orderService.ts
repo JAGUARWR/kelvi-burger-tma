@@ -1,11 +1,12 @@
 import { prisma } from '../lib/prisma.js';
-import { notifyCooks } from '../bot/index.js';
+import { notifyCooks, notifyUser } from '../bot/index.js';
 import type { CreateOrderBody, OrderItemPayload, OrderStatus, DbUser } from '../types.js';
 
 export async function createOrder(user: DbUser, body: CreateOrderBody) {
   const items: OrderItemPayload[] = body.items;
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const requestedBonus = body.bonusToUse ?? 0;
+  const pickupTime = body.pickup_time ?? 'asap';
 
   const { order, effectiveBonus, bonusEarned } = await prisma.$transaction(async (tx) => {
     const currentUser = await tx.user.findUniqueOrThrow({ where: { id: user.id } });
@@ -23,6 +24,7 @@ export async function createOrder(user: DbUser, body: CreateOrderBody) {
         bonusUsed: effective,
         bonusEarned: earned,
         orderType: body.orderType,
+        pickupTime,
         status: 'new',
       },
     });
@@ -31,6 +33,13 @@ export async function createOrder(user: DbUser, body: CreateOrderBody) {
       await tx.user.update({
         where: { id: user.id },
         data: { bonusBalance: { decrement: effective } },
+      });
+    }
+
+    if (earned > 0) {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { bonusBalance: { increment: earned } },
       });
     }
 
@@ -50,6 +59,14 @@ export async function createOrder(user: DbUser, body: CreateOrderBody) {
     });
   }
 
+  await notifyUser(
+    Number(user.telegramId),
+    order.id,
+    pickupTime,
+    totalPrice,
+    effectiveBonus,
+  );
+
   return {
     id: order.id,
     items,
@@ -57,6 +74,7 @@ export async function createOrder(user: DbUser, body: CreateOrderBody) {
     bonusUsed: effectiveBonus,
     bonusEarned,
     orderType: order.orderType,
+    pickupTime: order.pickupTime,
     status: order.status,
     createdAt: order.createdAt,
   };
@@ -75,6 +93,7 @@ export async function getUserOrders(userId: number) {
     bonusUsed: o.bonusUsed,
     bonusEarned: o.bonusEarned,
     orderType: o.orderType,
+    pickupTime: o.pickupTime,
     status: o.status as OrderStatus,
     createdAt: o.createdAt,
   }));

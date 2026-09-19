@@ -39,7 +39,7 @@ interface OrderStore {
   loading: boolean;
   submitting: boolean;
   error: string | null;
-  addOrder: (items: CartItem[], orderType: 'takeaway' | 'dine_in', bonusToUse?: number) => Promise<boolean>;
+  addOrder: (items: CartItem[], orderType: 'takeaway' | 'dine_in', bonusToUse?: number, pickupTime?: string) => Promise<boolean>;
   loadOrders: () => Promise<void>;
   clearError: () => void;
 }
@@ -50,7 +50,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
   submitting: false,
   error: null,
 
-  addOrder: async (items, orderType, bonusToUse) => {
+  addOrder: async (items, orderType, bonusToUse, pickupTime) => {
     set({ submitting: true, error: null });
     try {
       const payload = {
@@ -63,6 +63,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
         })),
         orderType,
         bonusToUse: bonusToUse ?? 0,
+        pickup_time: pickupTime ?? 'asap',
       };
 
       const apiOrder = await createOrder(payload);
