@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Header } from '../components/layout/Header';
 import { CategoryTabs } from '../components/product/CategoryTabs';
 import { ProductCard } from '../components/product/ProductCard';
+import { SauceCard } from '../components/product/SauceCard';
 import { menuItems } from '../data/menu';
 import type { Category } from '../types';
 
@@ -24,14 +25,18 @@ export function HomePage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 14,
-          padding: '0 16px 70px 16px',
+          gap: 12,
+          padding: '0 16px 100px 16px',
           marginTop: 20,
         }}
       >
-        {filteredItems.map((item) => (
-          <ProductCard key={item.id} item={item} />
-        ))}
+        {filteredItems.map((item) =>
+          item.category === 'sauces' ? (
+            <SauceCard key={item.id} item={item} />
+          ) : (
+            <ProductCard key={item.id} item={item} />
+          )
+        )}
       </div>
     </div>
   );
