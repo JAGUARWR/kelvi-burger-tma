@@ -9,6 +9,8 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
 
+app.set('trust proxy', true);
+
 app.use(express.json({ limit: '100kb' }));
 
 app.use((_req, res, next) => {
