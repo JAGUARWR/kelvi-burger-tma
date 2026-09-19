@@ -21,7 +21,7 @@ export function ProfilePage() {
   const displayName = profile?.username
     ? `@${profile.username}`
     : profile?.first_name ?? getDisplayName();
-  const bonusBalance = profile?.bonus_balance ?? 0;
+  const bonusBalance = profile?.bonus_balance ?? profile?.bonusBalance ?? 200;
 
   return (
     <div

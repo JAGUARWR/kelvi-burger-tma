@@ -44,6 +44,7 @@ export interface ApiUserProfile {
   phone: string | null;
   address: string | null;
   bonus_balance: number;
+  bonusBalance?: number;
 }
 
 export async function fetchMe(): Promise<ApiUserProfile> {
