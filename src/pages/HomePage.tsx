@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Header } from '../components/layout/Header';
 import { CategoryTabs } from '../components/product/CategoryTabs';
 import { ProductCard } from '../components/product/ProductCard';
 import { SauceCard } from '../components/product/SauceCard';
@@ -31,8 +30,7 @@ export function HomePage() {
   const filteredItems = menuItems.filter((item) => item.category === activeCategory);
 
   return (
-    <div className="animate-fade-slide-in flex flex-col" style={{ paddingTop: 'max(56px, calc(env(safe-area-inset-top) + 56px))' }}>
-      <Header />
+    <div className="animate-fade-slide-in flex flex-col">
       <CategoryTabs
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}

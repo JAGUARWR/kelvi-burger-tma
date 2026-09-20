@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
 import { HomePage } from './pages/HomePage';
 import { CartPage } from './pages/CartPage';
@@ -37,7 +38,8 @@ function App() {
       >
         Перейти к содержимому
       </a>
-      <main id="main-content" className="flex-1">
+      <Header />
+      <main id="main-content" className="flex-1" style={{ paddingTop: 'max(56px, calc(env(safe-area-inset-top) + 56px))' }}>
         {renderPage()}
       </main>
       <BottomNav

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { ClipboardList } from 'lucide-react';
-import { Header } from '../components/layout/Header';
 import { useOrderStore } from '../store/orderStore';
 import type { OrderStatus } from '../types';
 
@@ -34,7 +33,6 @@ export function OrdersPage({ onNavigateHome }: OrdersPageProps) {
   if (loading) {
     return (
       <div className="pb-[70px] animate-fade-slide-in flex flex-col">
-        <Header />
         <div
           className="flex items-center justify-center"
           style={{ minHeight: 'calc(100dvh - 160px)' }}
@@ -48,7 +46,6 @@ export function OrdersPage({ onNavigateHome }: OrdersPageProps) {
   if (orders.length === 0) {
     return (
       <div className="pb-[70px] animate-fade-slide-in flex flex-col">
-        <Header />
         <div
           className="flex flex-col items-center justify-center text-center px-5"
           style={{ flex: 1, minHeight: 'calc(100dvh - 160px)' }}
@@ -96,7 +93,6 @@ export function OrdersPage({ onNavigateHome }: OrdersPageProps) {
 
   return (
     <div className="pb-[70px] animate-fade-slide-in flex flex-col">
-      <Header />
       <div className="pt-5 flex flex-col">
         {orders.map((order) => (
           <div

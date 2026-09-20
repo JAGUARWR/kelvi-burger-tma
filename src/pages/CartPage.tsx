@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { Minus, Plus, Trash2, ShoppingCart, Clock, Flame } from 'lucide-react';
-import { Header } from '../components/layout/Header';
 import { useCartStore } from '../store/cartStore';
 import { useOrderStore } from '../store/orderStore';
 import { useUserStore } from '../store/userStore';
@@ -78,7 +77,6 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
     const displayTime = pickupMode === 'asap' ? '20–30 минут' : selectedTime;
     return (
       <div className="animate-fade-slide-in" style={{ width: '100%', minHeight: '100vh', padding: '16px 16px 120px' }}>
-        <Header />
         <div
           className="flex flex-col items-center justify-center text-center"
           style={{ minHeight: 'calc(100vh - 200px)', paddingTop: 60 }}
@@ -136,7 +134,6 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   if (items.length === 0) {
     return (
       <div className="animate-fade-slide-in" style={{ width: '100%', minHeight: '100vh', padding: '16px 16px 120px' }}>
-        <Header />
         <div
           className="flex flex-col items-center justify-center text-center"
           style={{ minHeight: 'calc(100vh - 200px)' }}
@@ -193,8 +190,6 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
         WebkitOverflowScrolling: 'touch',
       }}
     >
-      <Header />
-
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 16 }}>
         {/* Block 1: Cart items */}
         {items.map(({ item, quantity }) => (

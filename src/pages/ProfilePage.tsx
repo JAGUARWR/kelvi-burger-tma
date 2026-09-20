@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { User, MapPin, Flame } from 'lucide-react';
-import { Header } from '../components/layout/Header';
 import { useUserStore } from '../store/userStore';
 
 function getDisplayName(): string {
@@ -31,7 +30,6 @@ export function ProfilePage() {
         paddingBottom: 90,
       }}
     >
-      <Header />
       <div className="pt-5 flex flex-col flex-1" style={{ paddingLeft: 16, paddingRight: 16 }}>
         {/* User card */}
         <div
