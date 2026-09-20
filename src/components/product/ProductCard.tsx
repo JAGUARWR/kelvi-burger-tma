@@ -5,6 +5,7 @@ import { useCartStore } from '../../store/cartStore';
 
 interface ProductCardProps {
   item: MenuItem;
+  isAvailable?: boolean;
 }
 
 interface BadgeStyle {
@@ -46,7 +47,7 @@ const categoryEmoji: Record<string, string> = {
   drinks: '',
 };
 
-export function ProductCard({ item }: ProductCardProps) {
+export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
   const { items, addItem, updateQuantity } = useCartStore();
   const cartItem = items.find((i) => i.item.id === item.id);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -58,6 +59,7 @@ export function ProductCard({ item }: ProductCardProps) {
       style={{
         borderRadius: 20,
         background: '#1C1C1E',
+        opacity: isAvailable ? 1 : 0.55,
       }}
     >
       {/* Изображение */}
@@ -85,6 +87,38 @@ export function ProductCard({ item }: ProductCardProps) {
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgError(true)}
           />
+        )}
+        {/* Закончилось */}
+        {!isAvailable && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 3,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(0,0,0,0.35)',
+              borderRadius: 0,
+            }}
+          >
+            <span
+              style={{
+                background: 'rgba(0,0,0,0.7)',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                color: '#FF6B6B',
+                fontSize: 12,
+                fontWeight: 700,
+                padding: '5px 12px',
+                borderRadius: 20,
+                border: '1px solid rgba(255,107,107,0.35)',
+                letterSpacing: '0.3px',
+              }}
+            >
+              Закончилось
+            </span>
+          </div>
         )}
         {/* Бейдж */}
         {item.badge && (() => {
@@ -159,7 +193,22 @@ export function ProductCard({ item }: ProductCardProps) {
             )}
           </div>
 
-          {cartItem ? (
+          {!isAvailable ? (
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                background: '#2C2C2E',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'not-allowed',
+              }}
+            >
+              <Plus className="w-4 h-4" strokeWidth={2.5} style={{ color: '#4A4A4E' }} aria-hidden="true" />
+            </div>
+          ) : cartItem ? (
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => updateQuantity(item.id, cartItem.quantity - 1)}

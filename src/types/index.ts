@@ -13,6 +13,7 @@ export interface MenuItem {
   category: Category;
   tags: Tag[];
   ingredients: string[];
+  isAvailable?: boolean;
 }
 
 export interface CartItem {

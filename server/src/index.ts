@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { startBot } from './bot/index.js';
 import ordersRouter from './routes/orders.js';
 import authRouter from './routes/auth.js';
+import productsRouter from './routes/products.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/', apiLimiter);
 
 app.use('/api/auth', authRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/products', productsRouter);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });

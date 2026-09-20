@@ -11,6 +11,77 @@ export const bot = new Bot(BOT_TOKEN, {
   client: { apiRoot: TELEGRAM_API_ROOT },
 });
 
+const KITCHEN_CHAT_ID = process.env.COOKS_CHAT_ID || process.env.KITCHEN_CHAT_ID;
+
+function isKitchenChat(chatId: number): boolean {
+  return KITCHEN_CHAT_ID ? chatId.toString() === KITCHEN_CHAT_ID.toString() : false;
+}
+
+// --- Stop-list commands ---
+
+bot.command('stop', async (ctx) => {
+  if (!ctx.chat || !isKitchenChat(ctx.chat.id)) return;
+
+  const available = await prisma.product.findMany({
+    where: { isAvailable: true },
+    orderBy: { name: 'asc' },
+  });
+
+  if (available.length === 0) {
+    await ctx.reply('Все блюда уже на стопе! 🚫');
+    return;
+  }
+
+  const keyboard = new InlineKeyboard();
+  for (const p of available) {
+    keyboard.text(p.name, `stop:${p.id}`).row();
+  }
+
+  await ctx.reply('Выберите блюдо, чтобы поставить его на СТОП:', {
+    reply_markup: keyboard,
+  });
+});
+
+bot.command('unstop', async (ctx) => {
+  if (!ctx.chat || !isKitchenChat(ctx.chat.id)) return;
+
+  const stopped = await prisma.product.findMany({
+    where: { isAvailable: false },
+    orderBy: { name: 'asc' },
+  });
+
+  if (stopped.length === 0) {
+    await ctx.reply('Стоп-лист пуст, все блюда в наличии! 🔥');
+    return;
+  }
+
+  const keyboard = new InlineKeyboard();
+  for (const p of stopped) {
+    keyboard.text(p.name, `unstop:${p.id}`).row();
+  }
+
+  await ctx.reply('Выберите блюдо, чтобы вернуть его в меню:', {
+    reply_markup: keyboard,
+  });
+});
+
+bot.command('stoplist', async (ctx) => {
+  if (!ctx.chat || !isKitchenChat(ctx.chat.id)) return;
+
+  const stopped = await prisma.product.findMany({
+    where: { isAvailable: false },
+    orderBy: { name: 'asc' },
+  });
+
+  if (stopped.length === 0) {
+    await ctx.reply('Стоп-лист пуст, все блюда в наличии! 🔥');
+    return;
+  }
+
+  const lines = stopped.map((p, i) => `  ${i + 1}. ${p.name}`);
+  await ctx.reply(`⛔ СТОП-ЛИСТ:\n\n${lines.join('\n')}`);
+});
+
 bot.command('start', async (ctx) => {
   if (!ctx.from) return;
 
@@ -256,6 +327,67 @@ bot.on('callback_query:data', async (ctx) => {
     }
 
     await ctx.answerCallbackQuery({ text: `Заказ #${orderId} выдан` });
+    return;
+  }
+
+  // --- Stop-list callbacks ---
+  if (data.startsWith('stop:')) {
+    if (!ctx.chat || !isKitchenChat(ctx.chat.id)) {
+      await ctx.answerCallbackQuery();
+      return;
+    }
+    const productId = data.slice(5);
+    const product = await prisma.product.update({
+      where: { id: productId },
+      data: { isAvailable: false },
+    });
+
+    const remaining = await prisma.product.findMany({
+      where: { isAvailable: true },
+      orderBy: { name: 'asc' },
+    });
+
+    const keyboard = new InlineKeyboard();
+    for (const p of remaining) {
+      keyboard.text(p.name, `stop:${p.id}`).row();
+    }
+
+    const text = remaining.length > 0
+      ? `⛔ Блюдо «${product.name}» поставлено на СТОП! Заказ на сайте заблокирован.\n\nВыберите ещё:`
+      : `⛔ Блюдо «${product.name}» поставлено на СТОП! Заказ на сайте заблокирован.\n\nВсе блюда на стопе!`;
+
+    await ctx.editMessageText(text, { reply_markup: keyboard });
+    await ctx.answerCallbackQuery({ text: `«${product.name}» на стопе` });
+    return;
+  }
+
+  if (data.startsWith('unstop:')) {
+    if (!ctx.chat || !isKitchenChat(ctx.chat.id)) {
+      await ctx.answerCallbackQuery();
+      return;
+    }
+    const productId = data.slice(7);
+    const product = await prisma.product.update({
+      where: { id: productId },
+      data: { isAvailable: true },
+    });
+
+    const remaining = await prisma.product.findMany({
+      where: { isAvailable: false },
+      orderBy: { name: 'asc' },
+    });
+
+    const keyboard = new InlineKeyboard();
+    for (const p of remaining) {
+      keyboard.text(p.name, `unstop:${p.id}`).row();
+    }
+
+    const text = remaining.length > 0
+      ? `✅ Блюдо «${product.name}» возвращено в меню!\n\nВыберите ещё:`
+      : `✅ Блюдо «${product.name}» возвращено в меню!\n\nСтоп-лист пуст, все блюда в наличии! 🔥`;
+
+    await ctx.editMessageText(text, { reply_markup: keyboard });
+    await ctx.answerCallbackQuery({ text: `«${product.name}» в меню` });
     return;
   }
 

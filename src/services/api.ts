@@ -79,6 +79,18 @@ export async function createOrder(payload: CreateOrderPayload): Promise<ApiOrder
   return res.json();
 }
 
+export interface ApiProduct {
+  id: string;
+  name: string;
+  isAvailable: boolean;
+}
+
+export async function fetchProducts(): Promise<ApiProduct[]> {
+  const res = await fetch(`${API_BASE}/api/products`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export async function fetchMyOrders(): Promise<ApiOrder[]> {
   const res = await fetch(`${API_BASE}/api/orders/my`, {
     headers: headers(),

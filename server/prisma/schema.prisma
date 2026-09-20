@@ -42,3 +42,11 @@ model Order {
   @@index([status])
   @@map("orders")
 }
+
+model Product {
+  id          String @id
+  name        String
+  isAvailable Boolean @default(true) @map("is_available")
+
+  @@map("products")
+}

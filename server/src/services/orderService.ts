@@ -4,6 +4,15 @@ import type { CreateOrderBody, OrderItemPayload, OrderStatus, DbUser } from '../
 
 export async function createOrder(user: DbUser, body: CreateOrderBody) {
   const items: OrderItemPayload[] = body.items;
+
+  const unavailable = await prisma.product.findMany({
+    where: { id: { in: items.map((i) => i.id) }, isAvailable: false },
+  });
+  if (unavailable.length > 0) {
+    const names = unavailable.map((p) => p.name).join(', ');
+    throw new Error(`К сожалению, ${names} только что закончилось и временно недоступно`);
+  }
+
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const requestedBonus = body.bonusToUse ?? 0;
   const pickupTime = body.pickup_time ?? 'asap';
