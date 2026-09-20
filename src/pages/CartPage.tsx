@@ -71,11 +71,11 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   if (showSuccess) {
     const displayTime = pickupMode === 'asap' ? '20–30 минут' : selectedTime;
     return (
-      <div className="animate-fade-slide-in flex flex-col" style={{ minHeight: '100vh', paddingBottom: 110 }}>
+      <div className="animate-fade-slide-in" style={{ width: '100%', minHeight: '100vh', padding: '16px 16px 120px' }}>
         <Header />
         <div
-          className="flex flex-col items-center justify-center text-center px-5"
-          style={{ flex: 1, minHeight: 'calc(100dvh - 160px)' }}
+          className="flex flex-col items-center justify-center text-center"
+          style={{ minHeight: 'calc(100vh - 200px)', paddingTop: 60 }}
         >
           <div
             className="flex items-center justify-center"
@@ -129,11 +129,11 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
 
   if (items.length === 0) {
     return (
-      <div className="animate-fade-slide-in flex flex-col" style={{ minHeight: '100vh', paddingBottom: 110 }}>
+      <div className="animate-fade-slide-in" style={{ width: '100%', minHeight: '100vh', padding: '16px 16px 120px' }}>
         <Header />
         <div
-          className="flex flex-col items-center justify-center text-center px-5"
-          style={{ flex: 1, minHeight: 'calc(100dvh - 160px)' }}
+          className="flex flex-col items-center justify-center text-center"
+          style={{ minHeight: 'calc(100vh - 200px)' }}
         >
           <div
             className="flex items-center justify-center"
@@ -177,11 +177,20 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   }
 
   return (
-    <div className="animate-fade-slide-in" style={{ minHeight: '100vh', paddingBottom: 110 }}>
+    <div
+      className="animate-fade-slide-in"
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        padding: '16px 16px 120px',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+      }}
+    >
       <Header />
 
-      <div style={{ padding: '20px 16px 0' }}>
-        {/* Cart items */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 16 }}>
+        {/* Block 1: Cart items */}
         {items.map(({ item, quantity }) => (
           <div
             key={item.id}
@@ -189,9 +198,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
               background: '#1C1C1E',
               borderRadius: 18,
               padding: 14,
-              width: '100%',
-              boxSizing: 'border-box',
-              marginBottom: 12,
+              border: '1px solid rgba(255,255,255,0.08)',
             }}
           >
             <div className="flex" style={{ gap: 12 }}>
@@ -242,7 +249,6 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
               <div className="flex items-center" style={{ gap: 8 }}>
                 <button
                   onClick={() => updateQuantity(item.id, quantity - 1)}
-                  aria-label={`Уменьшить количество ${item.name}`}
                   className="flex items-center justify-center active:scale-90 transition-transform"
                   style={{ width: 28, height: 28, borderRadius: '50%', background: '#2C2C2E' }}
                 >
@@ -256,7 +262,6 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                 </span>
                 <button
                   onClick={() => updateQuantity(item.id, quantity + 1)}
-                  aria-label={`Увеличить количество ${item.name}`}
                   className="flex items-center justify-center active:scale-90 transition-transform"
                   style={{ width: 28, height: 28, borderRadius: '50%', background: '#2C2C2E' }}
                 >
@@ -267,7 +272,6 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                     removeItem(item.id);
                     window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
                   }}
-                  aria-label={`Удалить ${item.name} из корзины`}
                   className="flex items-center justify-center active:scale-90 transition-transform"
                   style={{ width: 28, height: 28, borderRadius: '50%', background: 'transparent' }}
                 >
@@ -278,14 +282,13 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
           </div>
         ))}
 
-        {/* Pickup time */}
+        {/* Block 2: Pickup time */}
         <div
           style={{
             background: '#1C1C1E',
             borderRadius: 18,
             border: '1px solid rgba(255,255,255,0.08)',
             padding: 14,
-            marginBottom: 12,
           }}
         >
           <div className="flex items-center" style={{ gap: 8, marginBottom: 12 }}>
@@ -377,15 +380,13 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
           )}
         </div>
 
-        {/* Bonus toggle — always visible */}
+        {/* Block 3: Bonus toggle */}
         <div
           style={{
             background: '#1C1C1E',
             borderRadius: 18,
             border: '1px solid rgba(255,255,255,0.08)',
             padding: 14,
-            marginTop: 12,
-            marginBottom: 12,
           }}
         >
           <div className="flex items-center justify-between">
@@ -458,30 +459,16 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Bottom summary — fixed at bottom above navbar */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 70,
-          left: 0,
-          right: 0,
-          padding: '0 16px 12px',
-          background: 'linear-gradient(to top, #0D0D0F 60%, transparent)',
-          paddingTop: 20,
-          zIndex: 50,
-        }}
-      >
+        {/* Block 4: Summary & checkout */}
         <div
           style={{
             background: '#1C1C1E',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: 20,
-            padding: '14px 16px',
+            border: '1px solid rgba(255,255,255,0.08)',
+            padding: 16,
           }}
         >
-          {/* Error badge — subtle, not alarming */}
           {error && !submitting && (
             <div
               onClick={clearError}
@@ -490,7 +477,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                 border: '1px solid rgba(239, 83, 80, 0.2)',
                 borderRadius: 10,
                 padding: '8px 12px',
-                marginBottom: 10,
+                marginBottom: 12,
                 cursor: 'pointer',
               }}
             >
@@ -500,7 +487,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
             </div>
           )}
 
-          <div className="flex items-center justify-between" style={{ marginBottom: 4 }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
             <span style={{ fontSize: 14, color: '#8A8A8E' }}>Сумма заказа:</span>
             <span className="tabular-nums" style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>
               {subtotal}&nbsp;₽
@@ -508,7 +495,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
           </div>
 
           {bonusDiscount > 0 && (
-            <div className="flex items-center justify-between" style={{ marginBottom: 4 }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
               <span style={{ fontSize: 14, color: '#FF6B00' }}>Скидка баллами:</span>
               <span className="tabular-nums" style={{ fontSize: 15, fontWeight: 500, color: '#FF6B00' }}>
                 −{bonusDiscount}&nbsp;₽
@@ -519,9 +506,9 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
           <div
             className="flex items-center justify-between"
             style={{
-              marginBottom: 12,
-              paddingTop: 8,
+              paddingTop: 12,
               borderTop: '1px solid rgba(255,255,255,0.06)',
+              marginBottom: 14,
             }}
           >
             <span style={{ fontSize: 15, color: '#8A8A8E' }}>Итого:</span>
@@ -579,7 +566,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
               fontSize: 12,
               color: confirmClear ? '#E53935' : '#8A8A8E',
               textAlign: 'center',
-              marginTop: 8,
+              marginTop: 12,
               background: 'none',
               border: 'none',
               cursor: 'pointer',
