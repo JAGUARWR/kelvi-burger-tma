@@ -1,6 +1,6 @@
 export function Header() {
   return (
-    <header className="sticky top-0 z-50" style={{ background: 'transparent' }}>
+    <header className="sticky top-0 z-50" style={{ background: '#0F0F12' }}>
       <div
         className="flex items-center justify-center"
         style={{
@@ -11,8 +11,7 @@ export function Header() {
         <img
           src="/logo.png"
           alt="КЭЛВИ"
-          className="h-8"
-          style={{ width: 'auto' }}
+          className="h-7 w-auto object-contain drop-shadow-[0_2px_8px_rgba(255,107,0,0.3)]"
         />
       </div>
     </header>
