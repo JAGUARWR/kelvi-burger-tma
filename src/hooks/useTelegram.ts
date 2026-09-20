@@ -77,27 +77,12 @@ export function useTelegram(
     tg.ready();
     tg.expand();
     tg.enableClosingConfirmation();
-
-    const root = document.documentElement;
-    const p = tg.themeParams;
-    if (p) {
-      if (p.bg_color) root.style.setProperty('--tg-bg', p.bg_color);
-      if (p.text_color) root.style.setProperty('--tg-text', p.text_color);
-      if (p.hint_color) root.style.setProperty('--tg-hint', p.hint_color);
-      if (p.button_color) root.style.setProperty('--tg-btn', p.button_color);
-      if (p.button_text_color) root.style.setProperty('--tg-btn-text', p.button_text_color);
-      if (p.secondary_bg_color) root.style.setProperty('--tg-card', p.secondary_bg_color);
-      root.classList.add('tg-theme');
-    }
-
-    const bgColor = p?.bg_color ?? '#0D0D0F';
-    tg.setHeaderColor(bgColor);
-    tg.setBackgroundColor(bgColor);
+    tg.setHeaderColor('#0F0F12');
+    tg.setBackgroundColor('#0F0F12');
 
     tgRef.current = tg;
 
     return () => {
-      root.classList.remove('tg-theme');
       tgRef.current = null;
     };
   }, []);
