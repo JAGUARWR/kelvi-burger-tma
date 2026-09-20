@@ -22,13 +22,11 @@ export function HomePage() {
       <div
         key={activeCategory}
         className="animate-fade-slide-in"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 12,
-          padding: '0 16px 100px 16px',
-          marginTop: 20,
-        }}
+        style={
+          activeCategory === 'sauces'
+            ? { display: 'flex', flexDirection: 'column', gap: 8, padding: '0 16px 100px 16px', marginTop: 20 }
+            : { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, padding: '0 16px 100px 16px', marginTop: 20 }
+        }
       >
         {filteredItems.map((item) =>
           item.category === 'sauces' ? (
