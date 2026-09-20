@@ -7,11 +7,37 @@ interface ProductCardProps {
   item: MenuItem;
 }
 
-const badgeColors: Record<string, string> = {
-  'Хит': 'bg-accent',
-  'Острый': 'bg-red-500',
-  'Новинка': 'bg-emerald-500',
-};
+interface BadgeStyle {
+  background: string;
+  border: string;
+  color: string;
+}
+
+function getBadgeStyle(badge: string): BadgeStyle {
+  const styles: Record<string, BadgeStyle> = {
+    'Хит': {
+      background: 'rgba(255, 107, 0, 0.22)',
+      border: '1px solid rgba(255, 107, 0, 0.5)',
+      color: '#FF944D',
+    },
+    'Новинка': {
+      background: 'rgba(0, 200, 115, 0.22)',
+      border: '1px solid rgba(0, 200, 115, 0.5)',
+      color: '#2EE59D',
+    },
+    'Острый': {
+      background: 'rgba(255, 59, 48, 0.22)',
+      border: '1px solid rgba(255, 59, 48, 0.5)',
+      color: '#FF6961',
+    },
+  };
+
+  return styles[badge] || {
+    background: 'rgba(255, 255, 255, 0.12)',
+    border: '1px solid rgba(255, 255, 255, 0.25)',
+    color: '#E5E5EA',
+  };
+}
 
 const categoryEmoji: Record<string, string> = {
   burgers: '🍔',
@@ -61,15 +87,45 @@ export function ProductCard({ item }: ProductCardProps) {
           />
         )}
         {/* Бейдж */}
-        {item.badge && (
-          <div className="absolute top-2 left-2" aria-hidden="true">
-            <span
-              className={`${badgeColors[item.badge] || 'bg-accent'} text-white text-[10px] font-bold px-2 py-0.5 rounded-md`}
-            >
-              {item.badge}
-            </span>
-          </div>
-        )}
+        {item.badge && (() => {
+          const s = getBadgeStyle(item.badge);
+          return (
+            <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 2 }} aria-hidden="true">
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '4px 10px',
+                  borderRadius: 20,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  lineHeight: 1,
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.35)',
+                  background: s.background,
+                  border: s.border,
+                  color: s.color,
+                }}
+              >
+                <span
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: '50%',
+                    background: 'currentColor',
+                    boxShadow: '0 0 6px currentColor',
+                    flexShrink: 0,
+                  }}
+                />
+                {item.badge}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Контент */}
