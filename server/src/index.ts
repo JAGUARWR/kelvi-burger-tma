@@ -8,16 +8,30 @@ import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
+const allowedOrigins = (process.env.ALLOWED_ORIGIN || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 app.set('trust proxy', true);
 
 app.use(express.json({ limit: '100kb' }));
 
-app.use((_req, res, next) => {
-  res.header('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  res.header('Access-Control-Allow-Headers', 'Content-Type, x-telegram-init-data');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (allowedOrigins.length === 0) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-telegram-init-data');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
   next();
 });
 
