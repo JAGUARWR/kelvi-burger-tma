@@ -1,6 +1,6 @@
 export function Header() {
   return (
-    <header className="sticky top-0 z-50" style={{ background: '#0F0F12' }}>
+    <header className="fixed top-0 left-0 right-0 z-50" style={{ background: '#0F0F12' }}>
       <div
         className="flex items-center justify-center"
         style={{

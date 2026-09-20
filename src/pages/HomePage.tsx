@@ -31,7 +31,7 @@ export function HomePage() {
   const filteredItems = menuItems.filter((item) => item.category === activeCategory);
 
   return (
-    <div className="animate-fade-slide-in flex flex-col">
+    <div className="animate-fade-slide-in flex flex-col" style={{ paddingTop: 'max(56px, calc(env(safe-area-inset-top) + 56px))' }}>
       <Header />
       <CategoryTabs
         activeCategory={activeCategory}
