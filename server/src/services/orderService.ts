@@ -5,23 +5,37 @@ import type { CreateOrderBody, OrderItemPayload, OrderStatus, DbUser } from '../
 export async function createOrder(user: DbUser, body: CreateOrderBody) {
   const items: OrderItemPayload[] = body.items;
 
-  const unavailable = await prisma.product.findMany({
-    where: { id: { in: items.map((i) => i.id) }, isAvailable: false },
+  const dbProducts = await prisma.product.findMany({
+    where: { id: { in: items.map((i) => i.id) } },
   });
+
+  const unavailable = dbProducts.filter((p) => !p.isAvailable);
   if (unavailable.length > 0) {
     const names = unavailable.map((p) => p.name).join(', ');
     throw new Error(`К сожалению, ${names} только что закончилось и временно недоступно`);
   }
 
-  const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const noBonusIds = new Set(dbProducts.filter((p) => !p.canUseBonuses).map((p) => p.id));
+  const eligibleSubtotal = items
+    .filter((i) => !noBonusIds.has(i.id))
+    .reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const drinksSubtotal = items
+    .filter((i) => noBonusIds.has(i.id))
+    .reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+  const totalPrice = eligibleSubtotal + drinksSubtotal;
   const requestedBonus = body.bonusToUse ?? 0;
   const pickupTime = body.pickup_time ?? 'asap';
+
+  const maxAllowedBonus = Math.floor(eligibleSubtotal * 0.5);
+  if (requestedBonus > maxAllowedBonus) {
+    throw new Error(`Оплата баллами не распространяется на напитки. Максимально к списанию: ${maxAllowedBonus} Б`);
+  }
 
   const { order, effectiveBonus, bonusEarned } = await prisma.$transaction(async (tx) => {
     const currentUser = await tx.user.findUniqueOrThrow({ where: { id: user.id } });
 
-    const maxByPercent = Math.floor(totalPrice * 0.5);
-    const effective = Math.min(requestedBonus, currentUser.bonusBalance, maxByPercent);
+    const effective = Math.min(requestedBonus, currentUser.bonusBalance, maxAllowedBonus);
     const paidAmount = totalPrice - effective;
     const earned = Math.round(paidAmount * 0.05);
 

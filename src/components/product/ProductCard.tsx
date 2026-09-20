@@ -188,6 +188,11 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
                 {item.weight}
               </span>
             )}
+            {item.canUseBonuses === false && (
+              <span style={{ fontSize: 9, color: '#6B6B70', marginTop: 2, lineHeight: 1.2 }}>
+                Без списания бонусов
+              </span>
+            )}
           </div>
 
           {!isAvailable ? (

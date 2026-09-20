@@ -40,7 +40,13 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
   const timeSlots = useMemo(() => generateTimeSlots(), []);
   const subtotal = getTotal();
   const bonusBalance = profile?.bonus_balance ?? profile?.bonusBalance ?? 200;
-  const maxBonusUse = Math.min(bonusBalance, Math.floor(subtotal / 2));
+
+  const hasDrinks = items.some((i) => i.item.category === 'drinks');
+  const onlyDrinks = items.every((i) => i.item.category === 'drinks');
+  const bonusEligibleTotal = items
+    .filter((i) => i.item.category !== 'drinks')
+    .reduce((acc, i) => acc + i.item.price * i.quantity, 0);
+  const maxBonusUse = Math.min(bonusBalance, Math.floor(bonusEligibleTotal / 2));
   const bonusDiscount = useBonuses && maxBonusUse > 0 ? maxBonusUse : 0;
   const finalTotal = subtotal - bonusDiscount;
 
@@ -407,25 +413,32 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                   Списать баллы
                 </span>
                 <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block', marginTop: 1 }}>
-                  Доступно: {bonusBalance} Б (макс. 50% чека)
+                  {onlyDrinks
+                    ? 'Оплата баллами недоступна (в заказе только напитки)'
+                    : hasDrinks
+                      ? `На напитки баллы не действуют. Доступно: ${maxBonusUse} Б`
+                      : `Доступно: ${bonusBalance} Б (макс. 50% чека)`}
                 </span>
               </div>
             </div>
             <button
               onClick={() => {
+                if (onlyDrinks) return;
                 setUseBonuses(!useBonuses);
                 window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
               }}
+              disabled={onlyDrinks}
               style={{
                 width: 48,
                 height: 28,
                 borderRadius: 14,
                 border: 'none',
-                cursor: 'pointer',
-                background: useBonuses ? '#FF6B00' : '#2C2C2E',
+                cursor: onlyDrinks ? 'not-allowed' : 'pointer',
+                background: onlyDrinks ? '#2C2C2E' : useBonuses ? '#FF6B00' : '#2C2C2E',
                 position: 'relative',
                 transition: 'background 0.2s',
                 flexShrink: 0,
+                opacity: onlyDrinks ? 0.5 : 1,
               }}
             >
               <div
@@ -436,7 +449,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                   background: '#FFFFFF',
                   position: 'absolute',
                   top: 3,
-                  left: useBonuses ? 23 : 3,
+                  left: onlyDrinks ? 3 : useBonuses ? 23 : 3,
                   transition: 'left 0.2s',
                 }}
               />

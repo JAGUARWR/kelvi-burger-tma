@@ -44,9 +44,11 @@ model Order {
 }
 
 model Product {
-  id          String @id
-  name        String
-  isAvailable Boolean @default(true) @map("is_available")
+  id            String  @id
+  name          String
+  category      String  @default("other")
+  isAvailable   Boolean @default(true) @map("is_available")
+  canUseBonuses Boolean @default(true) @map("can_use_bonuses")
 
   @@map("products")
 }

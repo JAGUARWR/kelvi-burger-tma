@@ -14,6 +14,7 @@ export interface MenuItem {
   tags: Tag[];
   ingredients: string[];
   isAvailable?: boolean;
+  canUseBonuses?: boolean;
 }
 
 export interface CartItem {

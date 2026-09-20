@@ -83,6 +83,7 @@ export interface ApiProduct {
   id: string;
   name: string;
   isAvailable: boolean;
+  canUseBonuses: boolean;
 }
 
 export async function fetchProducts(): Promise<ApiProduct[]> {
