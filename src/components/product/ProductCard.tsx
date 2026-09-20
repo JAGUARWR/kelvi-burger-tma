@@ -82,7 +82,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
             alt={item.name}
             width={400}
             height={300}
-            className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+            className={`w-full h-full ${item.category === 'drinks' ? 'object-contain p-2' : 'object-cover'} transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
             style={{ filter: isAvailable ? 'none' : 'grayscale(80%)' }}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
@@ -186,11 +186,6 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
             {item.weight && (
               <span style={{ fontSize: 10, color: '#6B6B70', lineHeight: 1.2 }}>
                 {item.weight}
-              </span>
-            )}
-            {item.canUseBonuses === false && (
-              <span style={{ fontSize: 9, color: '#6B6B70', marginTop: 2, lineHeight: 1.2 }}>
-                Без списания бонусов
               </span>
             )}
           </div>

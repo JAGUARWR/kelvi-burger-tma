@@ -49,6 +49,7 @@ model Product {
   category      String  @default("other")
   isAvailable   Boolean @default(true) @map("is_available")
   canUseBonuses Boolean @default(true) @map("can_use_bonuses")
+  image         String?
 
   @@map("products")
 }

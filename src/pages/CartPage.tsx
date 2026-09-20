@@ -414,10 +414,8 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                 </span>
                 <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block', marginTop: 1 }}>
                   {onlyDrinks
-                    ? 'Оплата баллами недоступна (в заказе только напитки)'
-                    : hasDrinks
-                      ? `На напитки баллы не действуют. Доступно: ${maxBonusUse} Б`
-                      : `Доступно: ${bonusBalance} Б (макс. 50% чека)`}
+                    ? 'В заказе только напитки — списание бонусов недоступно'
+                    : `Доступно: ${bonusBalance} Б (макс. 50% чека)`}
                 </span>
               </div>
             </div>
@@ -455,6 +453,11 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
               />
             </button>
           </div>
+          {hasDrinks && !onlyDrinks && (
+            <p style={{ fontSize: 11, color: '#6B6B70', marginTop: 8, lineHeight: 1.4 }}>
+              *Оплата бонусами не распространяется на категорию напитков
+            </p>
+          )}
           {useBonuses && maxBonusUse > 0 && (
             <div
               style={{
