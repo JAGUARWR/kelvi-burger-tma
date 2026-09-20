@@ -1,6 +1,6 @@
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 bg-app-bg/95 backdrop-blur-xl">
+    <header className="sticky top-0 z-50" style={{ background: 'transparent' }}>
       <div
         className="flex items-center justify-center"
         style={{
