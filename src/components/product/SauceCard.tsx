@@ -4,6 +4,7 @@ import { useCartStore } from '../../store/cartStore';
 
 interface SauceCardProps {
   item: MenuItem;
+  isAvailable?: boolean;
 }
 
 const sauceColors: Record<string, string> = {
@@ -15,7 +16,7 @@ const sauceColors: Record<string, string> = {
   'Классический соус': '#8E8E93',
 };
 
-export function SauceCard({ item }: SauceCardProps) {
+export function SauceCard({ item, isAvailable = true }: SauceCardProps) {
   const { items, addItem, updateQuantity } = useCartStore();
   const cartItem = items.find((i) => i.item.id === item.id);
   const dotColor = sauceColors[item.name] || '#8E8E93';
@@ -32,6 +33,7 @@ export function SauceCard({ item }: SauceCardProps) {
         padding: '12px 16px',
         height: 60,
         transition: 'background 0.2s ease',
+        opacity: isAvailable ? 1 : 0.55,
       }}
     >
       {/* Левая часть */}
@@ -70,6 +72,24 @@ export function SauceCard({ item }: SauceCardProps) {
           >
             30 г
           </span>
+          {!isAvailable && (
+            <span
+              style={{
+                marginLeft: 8,
+                background: 'rgba(255, 59, 48, 0.25)',
+                border: '1px solid rgba(255, 59, 48, 0.6)',
+                color: '#FF6961',
+                borderRadius: 12,
+                padding: '2px 6px',
+                fontWeight: 700,
+                fontSize: 10,
+                lineHeight: 1.3,
+                flexShrink: 0,
+              }}
+            >
+              Стоп
+            </span>
+          )}
         </div>
       </div>
 
@@ -85,7 +105,22 @@ export function SauceCard({ item }: SauceCardProps) {
           {item.price} ₽
         </span>
 
-        {cartItem ? (
+        {!isAvailable ? (
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 10,
+              background: '#2C2C2E',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            <Plus className="w-4 h-4" strokeWidth={2.5} style={{ color: '#4A4A4E' }} />
+          </div>
+        ) : cartItem ? (
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => updateQuantity(item.id, cartItem.quantity - 1)}

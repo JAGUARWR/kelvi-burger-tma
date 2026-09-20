@@ -17,69 +17,99 @@ function isKitchenChat(chatId: number): boolean {
   return KITCHEN_CHAT_ID ? chatId.toString() === KITCHEN_CHAT_ID.toString() : false;
 }
 
-// --- Stop-list commands ---
+// --- Stop-list interactive menu ---
+
+const categoryNames: Record<string, string> = {
+  burgers: '🍔 Бургеры',
+  snacks: '🍟 Закуски',
+  sauces: '🥣 Соусы',
+  drinks: '🥤 Напитки',
+};
+
+async function renderStopMenu(ctx: any) {
+  const keyboard = new InlineKeyboard()
+    .text('🍔 Бургеры', 'sl:cat:burgers').text('🍟 Закуски', 'sl:cat:snacks').row()
+    .text('🥣 Соусы', 'sl:cat:sauces').text('🥤 Напитки', 'sl:cat:drinks').row()
+    .text('📋 Текущий стоп-лист', 'sl:stoplist').row()
+    .text('❌ Закрыть', 'sl:close');
+
+  const method = ctx.editMessageText ? 'editMessageText' : 'reply';
+  try {
+    await ctx[method](
+      'Управление стоп-листом кухни КЭЛВИ. Выберите категорию:',
+      { reply_markup: keyboard },
+    );
+  } catch {
+    await ctx.reply(
+      'Управление стоп-листом кухни КЭЛВИ. Выберите категорию:',
+      { reply_markup: keyboard },
+    );
+  }
+}
+
+async function renderCategory(ctx: any, categoryId: string) {
+  const products = await prisma.product.findMany({
+    where: { category: categoryId },
+    orderBy: { name: 'asc' },
+  });
+
+  const catLabel = categoryNames[categoryId] || categoryId;
+  const keyboard = new InlineKeyboard();
+
+  for (const p of products) {
+    const icon = p.isAvailable ? '🟢' : '🔴';
+    const suffix = p.isAvailable ? '' : ' (СТОП)';
+    keyboard.text(`${icon} ${p.name}${suffix}`, `sl:toggle:${p.id}`).row();
+  }
+
+  keyboard.text('⬅️ Назад к категориям', 'sl:menu');
+
+  try {
+    await ctx.editMessageText(
+      `Категория: ${catLabel}. Нажмите на блюдо, чтобы изменить его статус:`,
+      { reply_markup: keyboard },
+    );
+  } catch {
+    await ctx.reply(
+      `Категория: ${catLabel}. Нажмите на блюдо, чтобы изменить его статус:`,
+      { reply_markup: keyboard },
+    );
+  }
+}
+
+async function renderStopList(ctx: any) {
+  const stopped = await prisma.product.findMany({
+    where: { isAvailable: false },
+    orderBy: { name: 'asc' },
+  });
+
+  const keyboard = new InlineKeyboard().text('⬅️ Назад', 'sl:menu');
+
+  if (stopped.length === 0) {
+    try {
+      await ctx.editMessageText('✅ Все позиции доступны!', { reply_markup: keyboard });
+    } catch {
+      await ctx.reply('✅ Все позиции доступны!', { reply_markup: keyboard });
+    }
+    return;
+  }
+
+  const lines = stopped.map((p, i) => `  ${i + 1}. 🔴 ${p.name}`);
+  try {
+    await ctx.editMessageText(`⛔ Текущий стоп-лист:\n\n${lines.join('\n')}`, { reply_markup: keyboard });
+  } catch {
+    await ctx.reply(`⛔ Текущий стоп-лист:\n\n${lines.join('\n')}`, { reply_markup: keyboard });
+  }
+}
 
 bot.command('stop', async (ctx) => {
   if (!ctx.chat || !isKitchenChat(ctx.chat.id)) return;
-
-  const available = await prisma.product.findMany({
-    where: { isAvailable: true },
-    orderBy: { name: 'asc' },
-  });
-
-  if (available.length === 0) {
-    await ctx.reply('Все блюда уже на стопе! 🚫');
-    return;
-  }
-
-  const keyboard = new InlineKeyboard();
-  for (const p of available) {
-    keyboard.text(p.name, `stop:${p.id}`).row();
-  }
-
-  await ctx.reply('Выберите блюдо, чтобы поставить его на СТОП:', {
-    reply_markup: keyboard,
-  });
+  await renderStopMenu(ctx);
 });
 
-bot.command('unstop', async (ctx) => {
+bot.command('menu', async (ctx) => {
   if (!ctx.chat || !isKitchenChat(ctx.chat.id)) return;
-
-  const stopped = await prisma.product.findMany({
-    where: { isAvailable: false },
-    orderBy: { name: 'asc' },
-  });
-
-  if (stopped.length === 0) {
-    await ctx.reply('Стоп-лист пуст, все блюда в наличии! 🔥');
-    return;
-  }
-
-  const keyboard = new InlineKeyboard();
-  for (const p of stopped) {
-    keyboard.text(p.name, `unstop:${p.id}`).row();
-  }
-
-  await ctx.reply('Выберите блюдо, чтобы вернуть его в меню:', {
-    reply_markup: keyboard,
-  });
-});
-
-bot.command('stoplist', async (ctx) => {
-  if (!ctx.chat || !isKitchenChat(ctx.chat.id)) return;
-
-  const stopped = await prisma.product.findMany({
-    where: { isAvailable: false },
-    orderBy: { name: 'asc' },
-  });
-
-  if (stopped.length === 0) {
-    await ctx.reply('Стоп-лист пуст, все блюда в наличии! 🔥');
-    return;
-  }
-
-  const lines = stopped.map((p, i) => `  ${i + 1}. ${p.name}`);
-  await ctx.reply(`⛔ СТОП-ЛИСТ:\n\n${lines.join('\n')}`);
+  await renderStopMenu(ctx);
 });
 
 bot.command('start', async (ctx) => {
@@ -330,64 +360,61 @@ bot.on('callback_query:data', async (ctx) => {
     return;
   }
 
-  // --- Stop-list callbacks ---
-  if (data.startsWith('stop:')) {
+  // --- Stop-list interactive callbacks ---
+  if (data.startsWith('sl:')) {
     if (!ctx.chat || !isKitchenChat(ctx.chat.id)) {
       await ctx.answerCallbackQuery();
       return;
     }
-    const productId = data.slice(5);
-    const product = await prisma.product.update({
-      where: { id: productId },
-      data: { isAvailable: false },
-    });
 
-    const remaining = await prisma.product.findMany({
-      where: { isAvailable: true },
-      orderBy: { name: 'asc' },
-    });
-
-    const keyboard = new InlineKeyboard();
-    for (const p of remaining) {
-      keyboard.text(p.name, `stop:${p.id}`).row();
-    }
-
-    const text = remaining.length > 0
-      ? `⛔ Блюдо «${product.name}» поставлено на СТОП! Заказ на сайте заблокирован.\n\nВыберите ещё:`
-      : `⛔ Блюдо «${product.name}» поставлено на СТОП! Заказ на сайте заблокирован.\n\nВсе блюда на стопе!`;
-
-    await ctx.editMessageText(text, { reply_markup: keyboard });
-    await ctx.answerCallbackQuery({ text: `«${product.name}» на стопе` });
-    return;
-  }
-
-  if (data.startsWith('unstop:')) {
-    if (!ctx.chat || !isKitchenChat(ctx.chat.id)) {
+    if (data === 'sl:menu') {
+      await renderStopMenu(ctx);
       await ctx.answerCallbackQuery();
       return;
     }
-    const productId = data.slice(7);
-    const product = await prisma.product.update({
-      where: { id: productId },
-      data: { isAvailable: true },
-    });
 
-    const remaining = await prisma.product.findMany({
-      where: { isAvailable: false },
-      orderBy: { name: 'asc' },
-    });
-
-    const keyboard = new InlineKeyboard();
-    for (const p of remaining) {
-      keyboard.text(p.name, `unstop:${p.id}`).row();
+    if (data.startsWith('sl:cat:')) {
+      const categoryId = data.slice(7);
+      await renderCategory(ctx, categoryId);
+      await ctx.answerCallbackQuery();
+      return;
     }
 
-    const text = remaining.length > 0
-      ? `✅ Блюдо «${product.name}» возвращено в меню!\n\nВыберите ещё:`
-      : `✅ Блюдо «${product.name}» возвращено в меню!\n\nСтоп-лист пуст, все блюда в наличии! 🔥`;
+    if (data.startsWith('sl:toggle:')) {
+      const productId = data.slice(10);
+      const product = await prisma.product.findUnique({ where: { id: productId } });
+      if (product) {
+        const newStatus = !product.isAvailable;
+        await prisma.product.update({
+          where: { id: productId },
+          data: { isAvailable: newStatus },
+        });
+        const alertText = newStatus
+          ? `✅ Позиция ${product.name} возвращена в меню!`
+          : `⛔ Позиция ${product.name} поставлена на СТОП!`;
+        await renderCategory(ctx, product.category);
+        await ctx.answerCallbackQuery({ text: alertText });
+      } else {
+        await ctx.answerCallbackQuery({ text: 'Позиция не найдена' });
+      }
+      return;
+    }
 
-    await ctx.editMessageText(text, { reply_markup: keyboard });
-    await ctx.answerCallbackQuery({ text: `«${product.name}» в меню` });
+    if (data === 'sl:stoplist') {
+      await renderStopList(ctx);
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    if (data === 'sl:close') {
+      try {
+        await ctx.editMessageText('✅ Стоп-лист закрыт.');
+      } catch { /* ignore */ }
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    await ctx.answerCallbackQuery();
     return;
   }
 

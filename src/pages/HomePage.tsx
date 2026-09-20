@@ -12,11 +12,20 @@ export function HomePage() {
   const [availability, setAvailability] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    fetchProducts().then((products) => {
-      const map: Record<string, boolean> = {};
-      for (const p of products) map[p.id] = p.isAvailable;
-      setAvailability(map);
-    });
+    let active = true;
+
+    function load() {
+      fetchProducts().then((products) => {
+        if (!active) return;
+        const map: Record<string, boolean> = {};
+        for (const p of products) map[p.id] = p.isAvailable;
+        setAvailability(map);
+      });
+    }
+
+    load();
+    const interval = setInterval(load, 15_000);
+    return () => { active = false; clearInterval(interval); };
   }, []);
 
   const filteredItems = menuItems.filter((item) => item.category === activeCategory);
@@ -40,7 +49,7 @@ export function HomePage() {
       >
         {filteredItems.map((item) =>
           item.category === 'sauces' ? (
-            <SauceCard key={item.id} item={item} />
+            <SauceCard key={item.id} item={item} isAvailable={availability[item.id] ?? true} />
           ) : (
             <ProductCard key={item.id} item={item} isAvailable={availability[item.id] ?? true} />
           )

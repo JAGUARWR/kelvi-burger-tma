@@ -83,6 +83,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
             width={400}
             height={300}
             className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+            style={{ filter: isAvailable ? 'none' : 'grayscale(80%)' }}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgError(true)}
@@ -93,27 +94,23 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
           <div
             style={{
               position: 'absolute',
-              inset: 0,
+              bottom: 8,
+              left: 8,
               zIndex: 3,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(0,0,0,0.35)',
-              borderRadius: 0,
             }}
           >
             <span
               style={{
-                background: 'rgba(0,0,0,0.7)',
+                background: 'rgba(255, 59, 48, 0.25)',
+                border: '1px solid rgba(255, 59, 48, 0.6)',
+                color: '#FF6961',
+                borderRadius: 12,
+                padding: '4px 8px',
+                fontWeight: 700,
+                fontSize: 11,
+                lineHeight: 1,
                 backdropFilter: 'blur(6px)',
                 WebkitBackdropFilter: 'blur(6px)',
-                color: '#FF6B6B',
-                fontSize: 12,
-                fontWeight: 700,
-                padding: '5px 12px',
-                borderRadius: 20,
-                border: '1px solid rgba(255,107,107,0.35)',
-                letterSpacing: '0.3px',
               }}
             >
               Закончилось
@@ -203,7 +200,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'not-allowed',
+                pointerEvents: 'none',
               }}
             >
               <Plus className="w-4 h-4" strokeWidth={2.5} style={{ color: '#4A4A4E' }} aria-hidden="true" />
