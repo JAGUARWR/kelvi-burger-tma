@@ -92,7 +92,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
           <img
             src={item.image || DRINK_IMAGES[item.name] || ''}
             alt={item.name}
-            className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full transition-all duration-200 ${item.category === 'drinks' ? 'object-contain scale-95' : 'object-cover'} ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{ filter: isAvailable ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.6))' : 'grayscale(80%)' }}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
