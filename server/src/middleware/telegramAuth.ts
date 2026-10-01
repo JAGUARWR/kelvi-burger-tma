@@ -96,6 +96,7 @@ export async function telegramAuthWithUser(req: Request, res: Response, next: Ne
         telegramId: BigInt(tgUser.id),
         firstName: tgUser.first_name ?? null,
         username: tgUser.username ?? null,
+        welcomeBonusClaimed: true,
       },
     });
 

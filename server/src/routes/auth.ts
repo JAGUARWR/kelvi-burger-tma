@@ -7,7 +7,7 @@ const router = Router();
 router.get('/me', telegramAuthWithUser, async (req, res) => {
   const user = (req as any).user;
 
-  if ((user.bonusBalance === 0 || user.bonusBalance === null) && user.id) {
+  if (!user.welcomeBonusClaimed && (user.bonusBalance === 0 || user.bonusBalance === null) && user.id) {
     const completedOrders = await prisma.order.count({
       where: { userId: user.id, status: 'completed' },
     });
@@ -15,7 +15,7 @@ router.get('/me', telegramAuthWithUser, async (req, res) => {
     if (completedOrders === 0) {
       const updated = await prisma.user.update({
         where: { id: user.id },
-        data: { bonusBalance: 200 },
+        data: { bonusBalance: 200, welcomeBonusClaimed: true },
       });
       user.bonusBalance = updated.bonusBalance;
     }

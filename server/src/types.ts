@@ -30,4 +30,5 @@ export interface DbUser {
   phone: string | null;
   address: string | null;
   bonusBalance: number;
+  welcomeBonusClaimed: boolean;
 }

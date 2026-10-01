@@ -59,13 +59,6 @@ export async function createOrder(user: DbUser, body: CreateOrderBody) {
       });
     }
 
-    if (earned > 0) {
-      await tx.user.update({
-        where: { id: user.id },
-        data: { bonusBalance: { increment: earned } },
-      });
-    }
-
     return { order, effectiveBonus: effective, bonusEarned: earned };
   });
 

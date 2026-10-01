@@ -127,6 +127,7 @@ bot.command('start', async (ctx) => {
         firstName: ctx.from.first_name ?? null,
         username: ctx.from.username ?? null,
         bonusBalance: 200,
+        welcomeBonusClaimed: true,
       },
     });
 
