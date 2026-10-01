@@ -47,6 +47,15 @@ const categoryEmoji: Record<string, string> = {
   drinks: '',
 };
 
+const DRINK_IMAGES: Record<string, string> = {
+  'BonAqua (газ/негаз)': '/drinks/bonaqua.jpg',
+  'Evervess': '/drinks/evervess.jpg',
+  'Mirinda': '/drinks/mirinda.jpg',
+  'Сок J7 Апельсин': '/drinks/j7.jpg',
+  'Сок J7 Яблоко': '/drinks/j7.jpg',
+  'Adrenaline Rush': '/drinks/adrenaline.jpg',
+};
+
 export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
   const { items, addItem, updateQuantity } = useCartStore();
   const cartItem = items.find((i) => i.item.id === item.id);
@@ -78,7 +87,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
           </div>
         ) : (
           <img
-            src={item.image}
+            src={item.image || DRINK_IMAGES[item.name] || ''}
             alt={item.name}
             width={400}
             height={300}
