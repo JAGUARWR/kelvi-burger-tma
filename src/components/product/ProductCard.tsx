@@ -73,8 +73,8 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
     >
       {/* Изображение */}
       <div
-        className="relative w-full flex items-center justify-center p-2 mb-2 rounded-xl overflow-hidden"
-        style={{ height: 144, background: '#18181C' }}
+        className="relative w-full aspect-square flex items-center justify-center p-2 mb-2 rounded-xl overflow-hidden"
+        style={{ background: '#18181C' }}
       >
         {!imgLoaded && !imgError && (
           <div className="skeleton w-full h-full" />
@@ -92,9 +92,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
           <img
             src={item.image || DRINK_IMAGES[item.name] || ''}
             alt={item.name}
-            width={400}
-            height={300}
-            className={`max-h-full max-w-full object-contain transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{ filter: isAvailable ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))' : 'grayscale(80%)' }}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
