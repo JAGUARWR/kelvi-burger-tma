@@ -40,7 +40,7 @@ export function HomePage() {
         key={activeCategory}
         className="animate-fade-slide-in"
         style={
-          activeCategory === 'sauces'
+          activeCategory === 'sauces' || activeCategory === 'drinks'
             ? { display: 'flex', flexDirection: 'column', gap: 8, padding: '0 16px 100px 16px', marginTop: 20 }
             : { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, padding: '0 16px 100px 16px', marginTop: 20 }
         }

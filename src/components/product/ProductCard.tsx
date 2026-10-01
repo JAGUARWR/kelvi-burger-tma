@@ -62,6 +62,109 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
 
+  if (item.category === 'drinks') {
+    return (
+      <div
+        className="w-full flex items-center justify-between p-3 rounded-2xl"
+        style={{
+          background: '#1C1C1E',
+          border: '1px solid rgba(255,255,255,0.05)',
+          opacity: isAvailable ? 1 : 0.55,
+        }}
+      >
+        <div
+          className="relative rounded-xl overflow-hidden flex items-center justify-center p-1"
+          style={{ width: 80, height: 80, minWidth: 80, background: 'rgba(0,0,0,0.3)' }}
+        >
+          {!imgLoaded && !imgError && <div className="skeleton w-full h-full" />}
+          {imgError ? (
+            <div className="w-full h-full flex items-center justify-center text-2xl">🥤</div>
+          ) : (
+            <img
+              src={item.image || DRINK_IMAGES[item.name] || ''}
+              alt={item.name}
+              className="w-full h-full object-contain"
+              loading="lazy"
+              onLoad={() => setImgLoaded(true)}
+              onError={() => setImgError(true)}
+            />
+          )}
+          {!isAvailable && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-[10px] text-red-400 font-bold">
+              Стоп
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 mx-3">
+          <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
+          {item.weight && (
+            <span className="text-xs block mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{item.weight}</span>
+          )}
+          {item.description && (
+            <p className="text-xs truncate mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{item.description}</p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-bold text-white whitespace-nowrap">{item.price} ₽</span>
+          {!isAvailable ? (
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 12,
+                background: '#2C2C2E',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+              }}
+            >
+              <Plus className="w-4 h-4" strokeWidth={2.5} style={{ color: '#4A4A4E' }} />
+            </div>
+          ) : cartItem ? (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => updateQuantity(item.id, cartItem.quantity - 1)}
+                className="flex items-center justify-center active:scale-90 transition-transform"
+                style={{ width: 30, height: 30, borderRadius: 8, background: '#2C2C2E' }}
+              >
+                <Minus className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+              <span className="text-white font-semibold text-sm" style={{ minWidth: 16, textAlign: 'center' }}>{cartItem.quantity}</span>
+              <button
+                onClick={() => updateQuantity(item.id, cartItem.quantity + 1)}
+                className="flex items-center justify-center active:scale-90 transition-transform"
+                style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,107,0,0.15)', color: '#FF6B00' }}
+              >
+                <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                addItem(item);
+                window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
+              }}
+              className="flex items-center justify-center active:scale-95 transition-transform"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 12,
+                background: 'rgba(255,107,0,0.15)',
+                color: '#FF6B00',
+                border: '1px solid rgba(255,107,0,0.3)',
+              }}
+            >
+              <Plus className="w-5 h-5" strokeWidth={2.5} />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="flex flex-col overflow-hidden"
@@ -92,7 +195,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
           <img
             src={item.image || DRINK_IMAGES[item.name] || ''}
             alt={item.name}
-            className={`w-full h-full transition-all duration-200 ${item.category === 'drinks' ? 'object-contain scale-95' : 'object-cover'} ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full object-cover transition-opacity duration-200 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             style={{ filter: isAvailable ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.6))' : 'grayscale(80%)' }}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
