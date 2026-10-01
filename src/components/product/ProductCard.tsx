@@ -82,7 +82,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
             alt={item.name}
             width={400}
             height={300}
-            className="w-full h-full object-cover rounded-xl transition-opacity duration-300" + (imgLoaded ? ' opacity-100' : ' opacity-0 absolute inset-0')
+            className={`w-full h-full object-cover rounded-xl transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
             style={{ filter: isAvailable ? 'none' : 'grayscale(80%)' }}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
