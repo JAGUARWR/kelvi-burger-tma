@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Minus, Plus, Trash2, ShoppingCart, Clock, Flame } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useOrderStore } from '../store/orderStore';
@@ -28,7 +28,11 @@ function generateTimeSlots(): string[] {
 export function CartPage({ onNavigateHome }: CartPageProps) {
   const { items, updateQuantity, removeItem, getTotal, clearCart } = useCartStore();
   const { addOrder, submitting, error, clearError } = useOrderStore();
-  const { profile } = useUserStore();
+  const { profile, loadProfile } = useUserStore();
+
+  useEffect(() => {
+    if (!profile) loadProfile();
+  }, [profile, loadProfile]);
 
   const [confirmClear, setConfirmClear] = useState(false);
   const [pickupMode, setPickupMode] = useState<PickupMode>('asap');
@@ -38,7 +42,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
   const subtotal = getTotal();
-  const bonusBalance = profile?.bonus_balance ?? profile?.bonusBalance ?? 200;
+  const bonusBalance = profile?.bonus_balance ?? 0;
 
   const hasDrinks = items.some((i) => i.item.category === 'drinks');
   const onlyDrinks = items.every((i) => i.item.category === 'drinks');
@@ -55,6 +59,7 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
     const ok = await addOrder(items, 'dine_in', bonusDiscount, pt);
     if (ok) {
       clearCart();
+      loadProfile();
       window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
       setShowSuccess(true);
       setUseBonuses(false);
