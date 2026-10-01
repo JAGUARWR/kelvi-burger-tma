@@ -65,16 +65,18 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
   if (item.category === 'drinks') {
     return (
       <div
-        className="w-full flex items-center justify-between p-3 rounded-2xl"
+        className="w-full flex items-center rounded-2xl"
         style={{
           background: '#1C1C1E',
           border: '1px solid rgba(255,255,255,0.05)',
+          padding: 16,
+          minHeight: 105,
           opacity: isAvailable ? 1 : 0.55,
         }}
       >
         <div
-          className="relative rounded-xl overflow-hidden flex items-center justify-center p-1"
-          style={{ width: 80, height: 80, minWidth: 80, background: 'rgba(0,0,0,0.3)' }}
+          className="relative rounded-2xl overflow-hidden flex items-center justify-center"
+          style={{ width: 90, height: 90, minWidth: 90, background: 'rgba(38,38,40,0.6)', padding: 6 }}
         >
           {!imgLoaded && !imgError && <div className="skeleton w-full h-full" />}
           {imgError ? (
@@ -84,6 +86,7 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
               src={item.image || DRINK_IMAGES[item.name] || ''}
               alt={item.name}
               className="w-full h-full object-contain"
+              style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))' }}
               loading="lazy"
               onLoad={() => setImgLoaded(true)}
               onError={() => setImgError(true)}
@@ -96,23 +99,23 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
           )}
         </div>
 
-        <div className="flex-1 min-w-0 mx-3">
-          <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
+        <div className="flex-1 min-w-0 flex flex-col justify-center gap-1" style={{ margin: '0 16px' }}>
+          <h3 className="text-white truncate" style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>{item.name}</h3>
           {item.weight && (
-            <span className="text-xs block mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{item.weight}</span>
+            <span className="text-xs font-medium" style={{ color: '#E85D04' }}>{item.weight}</span>
           )}
           {item.description && (
-            <p className="text-xs truncate mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{item.description}</p>
+            <p className="text-xs leading-relaxed" style={{ color: '#8A8A8E', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any, overflow: 'hidden' }}>{item.description}</p>
           )}
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-white whitespace-nowrap">{item.price} ₽</span>
+        <div className="flex flex-col items-end justify-center gap-2" style={{ paddingLeft: 8 }}>
+          <span className="text-base font-extrabold text-white whitespace-nowrap">{item.price} ₽</span>
           {!isAvailable ? (
             <div
               style={{
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 borderRadius: 12,
                 background: '#2C2C2E',
                 display: 'flex',
@@ -128,17 +131,17 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
               <button
                 onClick={() => updateQuantity(item.id, cartItem.quantity - 1)}
                 className="flex items-center justify-center active:scale-90 transition-transform"
-                style={{ width: 30, height: 30, borderRadius: 8, background: '#2C2C2E' }}
+                style={{ width: 32, height: 32, borderRadius: 10, background: '#2C2C2E' }}
               >
-                <Minus className="w-3.5 h-3.5" strokeWidth={2} />
+                <Minus className="w-4 h-4" strokeWidth={2} />
               </button>
-              <span className="text-white font-semibold text-sm" style={{ minWidth: 16, textAlign: 'center' }}>{cartItem.quantity}</span>
+              <span className="text-white font-semibold text-sm" style={{ minWidth: 18, textAlign: 'center' }}>{cartItem.quantity}</span>
               <button
                 onClick={() => updateQuantity(item.id, cartItem.quantity + 1)}
                 className="flex items-center justify-center active:scale-90 transition-transform"
-                style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,107,0,0.15)', color: '#FF6B00' }}
+                style={{ width: 32, height: 32, borderRadius: 10, background: '#E85D04', color: '#fff' }}
               >
-                <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                <Plus className="w-4 h-4" strokeWidth={2.5} />
               </button>
             </div>
           ) : (
@@ -147,14 +150,14 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
                 addItem(item);
                 window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
               }}
-              className="flex items-center justify-center active:scale-95 transition-transform"
+              className="flex items-center justify-center active:scale-95 transition-all"
               style={{
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 borderRadius: 12,
-                background: 'rgba(255,107,0,0.15)',
-                color: '#FF6B00',
-                border: '1px solid rgba(255,107,0,0.3)',
+                background: '#E85D04',
+                color: '#fff',
+                boxShadow: '0 4px 14px rgba(232,93,4,0.25)',
               }}
             >
               <Plus className="w-5 h-5" strokeWidth={2.5} />

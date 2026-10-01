@@ -40,9 +40,11 @@ export function HomePage() {
         key={activeCategory}
         className="animate-fade-slide-in"
         style={
-          activeCategory === 'sauces' || activeCategory === 'drinks'
-            ? { display: 'flex', flexDirection: 'column', gap: 8, padding: '0 16px 100px 16px', marginTop: 20 }
-            : { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, padding: '0 16px 100px 16px', marginTop: 20 }
+          activeCategory === 'drinks'
+            ? { display: 'flex', flexDirection: 'column' as const, gap: 14, padding: '0 16px 100px 16px', marginTop: 20 }
+            : activeCategory === 'sauces'
+              ? { display: 'flex', flexDirection: 'column' as const, gap: 8, padding: '0 16px 100px 16px', marginTop: 20 }
+              : { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, padding: '0 16px 100px 16px', marginTop: 20 }
         }
       >
         {filteredItems.map((item) =>
