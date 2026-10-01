@@ -72,7 +72,10 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
       }}
     >
       {/* Изображение */}
-      <div className="relative" style={{ height: 140 }}>
+      <div
+        className="relative w-full flex items-center justify-center p-2 mb-2 rounded-xl overflow-hidden"
+        style={{ height: 144, background: '#18181C' }}
+      >
         {!imgLoaded && !imgError && (
           <div className="skeleton w-full h-full" />
         )}
@@ -91,8 +94,8 @@ export function ProductCard({ item, isAvailable = true }: ProductCardProps) {
             alt={item.name}
             width={400}
             height={300}
-            className={`w-full h-full object-cover rounded-xl transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
-            style={{ filter: isAvailable ? 'none' : 'grayscale(80%)' }}
+            className={`max-h-full max-w-full object-contain transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            style={{ filter: isAvailable ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))' : 'grayscale(80%)' }}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgError(true)}
