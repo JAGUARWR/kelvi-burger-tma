@@ -5,10 +5,11 @@ import { HomePage } from './pages/HomePage';
 import { CartPage } from './pages/CartPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { LegalPage } from './pages/LegalPage';
 import { useCartStore } from './store/cartStore';
 import { useTelegram } from './hooks/useTelegram';
 
-type Tab = 'home' | 'cart' | 'orders' | 'profile';
+type Tab = 'home' | 'cart' | 'orders' | 'profile' | 'legal';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -22,11 +23,13 @@ function App() {
       case 'home':
         return <HomePage />;
       case 'cart':
-        return <CartPage onNavigateHome={goHome} />;
+        return <CartPage onNavigateHome={goHome} onNavigateLegal={() => setActiveTab('legal')} />;
       case 'orders':
         return <OrdersPage onNavigateHome={goHome} />;
       case 'profile':
-        return <ProfilePage />;
+        return <ProfilePage onNavigateLegal={() => setActiveTab('legal')} />;
+      case 'legal':
+        return <LegalPage onBack={goHome} />;
     }
   };
 

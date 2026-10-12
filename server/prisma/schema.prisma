@@ -33,6 +33,8 @@ model Order {
   orderType     String   @default("dine_in") @map("order_type") // "takeaway" | "dine_in"
   pickupTime    String   @default("asap") @map("pickup_time")
   status        String   @default("new") // "new" | "cooking" | "ready" | "completed" | "cancelled"
+  paymentStatus String   @default("pending") @map("payment_status") // "pending" | "paid" | "refunded"
+  paymentId     String?  @map("payment_id") // ID платежа в эквайринге
   cookMessageId Int?     @map("cook_message_id")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")

@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
-import { User, MapPin, Flame } from 'lucide-react';
+import { User, MapPin, Flame, FileText, ChevronRight } from 'lucide-react';
 import { useUserStore } from '../store/userStore';
+
+interface ProfilePageProps {
+  onNavigateLegal?: () => void;
+}
 
 function getDisplayName(): string {
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
@@ -10,7 +14,7 @@ function getDisplayName(): string {
   return 'Гость';
 }
 
-export function ProfilePage() {
+export function ProfilePage({ onNavigateLegal }: ProfilePageProps) {
   const { profile, loading, loadProfile } = useUserStore();
 
   useEffect(() => {
@@ -104,6 +108,7 @@ export function ProfilePage() {
             borderRadius: 20,
             border: '1px solid rgba(255, 255, 255, 0.08)',
             padding: '14px 16px',
+            marginBottom: 14,
           }}
         >
           <div className="flex items-center">
@@ -129,6 +134,46 @@ export function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Legal info link */}
+        <button
+          onClick={onNavigateLegal}
+          className="active:scale-[0.98] transition-transform"
+          style={{
+            background: '#1C1C1E',
+            borderRadius: 20,
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            padding: '14px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            cursor: 'pointer',
+            marginBottom: 14,
+            textAlign: 'left',
+          }}
+        >
+          <div
+            className="flex items-center justify-center shrink-0"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'rgba(255, 107, 0, 0.12)',
+            }}
+            aria-hidden="true"
+          >
+            <FileText style={{ width: 20, height: 20, color: '#FF6B00' }} strokeWidth={1.8} />
+          </div>
+          <div className="flex-1 min-w-0" style={{ marginLeft: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', display: 'block' }}>
+              Юридическая информация и реквизиты
+            </span>
+            <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block' }}>
+              Оплата, возврат, оферта
+            </span>
+          </div>
+          <ChevronRight style={{ width: 18, height: 18, color: '#636366', flexShrink: 0 }} strokeWidth={1.8} />
+        </button>
 
         {/* Info block */}
         <div

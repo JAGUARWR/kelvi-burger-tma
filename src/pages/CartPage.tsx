@@ -6,6 +6,7 @@ import { useUserStore } from '../store/userStore';
 
 interface CartPageProps {
   onNavigateHome?: () => void;
+  onNavigateLegal?: () => void;
 }
 
 type PickupMode = 'asap' | 'scheduled';
@@ -25,7 +26,7 @@ function generateTimeSlots(): string[] {
   return slots;
 }
 
-export function CartPage({ onNavigateHome }: CartPageProps) {
+export function CartPage({ onNavigateHome, onNavigateLegal }: CartPageProps) {
   const { items, updateQuantity, removeItem, getTotal, clearCart } = useCartStore();
   const { addOrder, submitting, error, clearError } = useOrderStore();
   const { profile, loadProfile } = useUserStore();
@@ -569,9 +570,46 @@ export function CartPage({ onNavigateHome }: CartPageProps) {
                 Оформляем...
               </>
             ) : (
-              'Оформить заказ'
+              'Оплатить заказ'
             )}
           </button>
+
+          <p style={{ fontSize: 11, color: '#8A8A8E', lineHeight: 1.4, textAlign: 'center', marginTop: 10, marginBottom: 0 }}>
+            Нажимая кнопку «Оплатить заказ», вы соглашаетесь с условиями{' '}
+            <button
+              onClick={onNavigateLegal}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: 11,
+                color: '#FF6B00',
+                textDecoration: 'underline',
+                display: 'inline',
+                font: 'inherit',
+              }}
+            >
+              Публичной оферты
+            </button>
+            {' '}и{' '}
+            <button
+              onClick={onNavigateLegal}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: 11,
+                color: '#FF6B00',
+                textDecoration: 'underline',
+                display: 'inline',
+                font: 'inherit',
+              }}
+            >
+              Политикой конфиденциальности
+            </button>
+          </p>
 
           <button
             onClick={handleClearClick}

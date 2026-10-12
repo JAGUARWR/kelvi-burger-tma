@@ -1,6 +1,6 @@
 import { Home, ShoppingCart, ClipboardList, User } from 'lucide-react';
 
-type Tab = 'home' | 'cart' | 'orders' | 'profile';
+type Tab = 'home' | 'cart' | 'orders' | 'profile' | 'legal';
 
 interface BottomNavProps {
   activeTab: Tab;
@@ -16,6 +16,7 @@ const tabs = [
 ];
 
 export function BottomNav({ activeTab, onTabChange, cartCount }: BottomNavProps) {
+  const effectiveTab = activeTab === 'legal' ? 'profile' : activeTab;
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50"
@@ -27,7 +28,7 @@ export function BottomNav({ activeTab, onTabChange, cartCount }: BottomNavProps)
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
+          const isActive = effectiveTab === tab.id;
           return (
             <button
               key={tab.id}

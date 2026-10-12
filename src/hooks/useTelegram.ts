@@ -57,7 +57,7 @@ declare global {
   }
 }
 
-type Tab = 'home' | 'cart' | 'orders' | 'profile';
+type Tab = 'home' | 'cart' | 'orders' | 'profile' | 'legal';
 
 const tabOrder: Tab[] = ['home', 'cart', 'orders', 'profile'];
 
@@ -93,6 +93,10 @@ export function useTelegram(
 
     const handleBack = () => {
       if (!activeTab) return;
+      if (activeTab === 'legal') {
+        setActiveTab('profile');
+        return;
+      }
       const idx = tabOrder.indexOf(activeTab);
       if (idx > 0) {
         setActiveTab(tabOrder[idx - 1]);
