@@ -1,4 +1,4 @@
-import { ChevronLeft, CreditCard, RotateCcw, Clock, Building2, Shield } from 'lucide-react';
+import { ChevronLeft, CreditCard, RotateCcw, Clock, Building2, Shield, Phone, Mail } from 'lucide-react';
 
 interface LegalPageProps {
   onBack: () => void;
@@ -70,7 +70,7 @@ export function LegalPage({ onBack }: LegalPageProps) {
       </button>
 
       <h1 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', marginBottom: 4 }}>
-        Юридическая информация
+        О заведении и реквизиты
       </h1>
       <p style={{ fontSize: 13, color: '#8A8A8E', marginBottom: 20 }}>
         Условия оплаты, возврата и обработки персональных данных
@@ -95,30 +95,35 @@ export function LegalPage({ onBack }: LegalPageProps) {
 
         <SectionCard
           icon={<Clock style={{ width: 18, height: 18, color: '#FF6B00' }} strokeWidth={1.8} />}
-          title="Условия выдачи и отмены заказа"
+          title="Условия выдачи заказа"
         >
           <p style={{ margin: 0, marginBottom: 8 }}>
-            Заказ выдается способом <strong style={{ color: '#FFFFFF' }}>самовывоза</strong> по адресу:
-            ул. Мичурина, 12, к указанному времени готовности.
+            Способ получения: <strong style={{ color: '#FFFFFF' }}>самовывоз</strong> по адресу:
+          </p>
+          <p style={{ margin: 0, marginBottom: 8 }}>
+            <strong style={{ color: '#FFFFFF' }}>г. Новосибирск, ул. Мичурина, д. 12</strong>
+            <span style={{ color: '#8A8A8E' }}> (Гастро-корт, 1 этаж)</span>
+          </p>
+          <p style={{ margin: 0, marginBottom: 8 }}>
+            Время приготовления: <strong style={{ color: '#FFFFFF' }}>~20–30 минут</strong> с момента оплаты.
           </p>
           <p style={{ margin: 0 }}>
-            Заказ может быть отменён пользователем до момента начала его приготовления.
-            После начала приготовления отмена заказа невозможна.
+            Режим работы: <strong style={{ color: '#FFFFFF' }}>ежедневно с 10:00 до 22:00</strong>.
           </p>
         </SectionCard>
 
         <SectionCard
           icon={<RotateCcw style={{ width: 18, height: 18, color: '#FF6B00' }} strokeWidth={1.8} />}
-          title="Политика возврата средств"
+          title="Правила возврата денежных средств"
         >
           <p style={{ margin: 0, marginBottom: 8 }}>
-            В случае отмены заказа до момента начала его приготовления или отказа заведения
-            в выполнении заказа денежные средства возвращаются в <strong style={{ color: '#FFFFFF' }}>полном объёме</strong> на
-            банковскую карту, с которой была совершена оплата.
+            При отмене заказа до момента начала его приготовления денежные средства возвращаются
+            в <strong style={{ color: '#FFFFFF' }}>полном объёме</strong> на банковскую карту,
+            с которой была совершена оплата.
           </p>
           <p style={{ margin: 0 }}>
-            Срок возврата — от <strong style={{ color: '#FFFFFF' }}>1 до 3 рабочих дней</strong> в зависимости
-            от банка-эмитента.
+            Срок зачисления возврата — от <strong style={{ color: '#FFFFFF' }}>1 до 3 рабочих дней</strong> в
+            зависимости от банка-эмитента.
           </p>
         </SectionCard>
 
@@ -139,44 +144,68 @@ export function LegalPage({ onBack }: LegalPageProps) {
 
         <SectionCard
           icon={<Building2 style={{ width: 18, height: 18, color: '#FF6B00' }} strokeWidth={1.8} />}
-          title="Реквизиты организации"
+          title="Реквизиты продавца"
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div>
               <span style={{ fontSize: 12, color: '#8A8A8E', display: 'block', marginBottom: 2 }}>
-                Организационно-правовая форма
+                Наименование
               </span>
-              <span style={{ color: '#FFFFFF' }}>ИП / ООО — (указать при регистрации)</span>
+              <span style={{ color: '#FFFFFF' }}>ИП Кузнецов Илья Сергеевич</span>
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 8 }}>
               <span style={{ fontSize: 12, color: '#8A8A8E', display: 'block', marginBottom: 2 }}>
                 ИНН
               </span>
-              <span style={{ color: '#FFFFFF' }}>— (указать при регистрации)</span>
+              <span style={{ color: '#FFFFFF' }}>540200744334</span>
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 8 }}>
               <span style={{ fontSize: 12, color: '#8A8A8E', display: 'block', marginBottom: 2 }}>
-                ОГРНИП / ОГРН
+                ОГРНИП
               </span>
-              <span style={{ color: '#FFFFFF' }}>— (указать при регистрации)</span>
+              <span style={{ color: '#FFFFFF' }}>326547600087250</span>
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 8 }}>
               <span style={{ fontSize: 12, color: '#8A8A8E', display: 'block', marginBottom: 2 }}>
-                Контактный телефон
+                Юридический адрес
               </span>
-              <span style={{ color: '#FFFFFF' }}>— (указать при регистрации)</span>
+              <span style={{ color: '#FFFFFF' }}>г. Новосибирск, ул. 1-я Чулымская, д. 112/3, кв. 284</span>
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 8 }}>
               <span style={{ fontSize: 12, color: '#8A8A8E', display: 'block', marginBottom: 2 }}>
-                Email для обращений
+                Адрес самовывоза
               </span>
-              <span style={{ color: '#FFFFFF' }}>— (указать при регистрации)</span>
+              <span style={{ color: '#FFFFFF' }}>г. Новосибирск, ул. Мичурина, д. 12 (Гастро-корт, 1 этаж)</span>
             </div>
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 8 }}>
-              <span style={{ fontSize: 12, color: '#8A8A8E', display: 'block', marginBottom: 2 }}>
-                Фактический адрес кухни
-              </span>
-              <span style={{ color: '#FFFFFF' }}>ул. Мичурина, 12</span>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          icon={<Phone style={{ width: 18, height: 18, color: '#FF6B00' }} strokeWidth={1.8} />}
+          title="Контакты"
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <Phone style={{ width: 14, height: 14, color: '#FF6B00' }} strokeWidth={1.8} />
+              <a
+                href="tel:+79618475550"
+                style={{ color: '#FFFFFF', fontSize: 14, textDecoration: 'none' }}
+              >
+                +7 (961) 847-55-50
+              </a>
+            </div>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <Mail style={{ width: 14, height: 14, color: '#FF6B00' }} strokeWidth={1.8} />
+              <a
+                href="mailto:calvey_nsk@mail.ru"
+                style={{ color: '#FFFFFF', fontSize: 14, textDecoration: 'none' }}
+              >
+                calvey_nsk@mail.ru
+              </a>
+            </div>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <Clock style={{ width: 14, height: 14, color: '#8A8A8E' }} strokeWidth={1.8} />
+              <span style={{ color: '#8A8A8E', fontSize: 13 }}>Ежедневно с 10:00 до 22:00</span>
             </div>
           </div>
         </SectionCard>

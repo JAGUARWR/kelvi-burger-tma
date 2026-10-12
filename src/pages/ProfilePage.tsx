@@ -166,10 +166,10 @@ export function ProfilePage({ onNavigateLegal }: ProfilePageProps) {
           </div>
           <div className="flex-1 min-w-0" style={{ marginLeft: 12 }}>
             <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', display: 'block' }}>
-              Юридическая информация и реквизиты
+              О заведении и реквизиты
             </span>
             <span style={{ fontSize: 11, color: '#8A8A8E', display: 'block' }}>
-              Оплата, возврат, оферта
+              Оплата, возврат, контакты
             </span>
           </div>
           <ChevronRight style={{ width: 18, height: 18, color: '#636366', flexShrink: 0 }} strokeWidth={1.8} />

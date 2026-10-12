@@ -575,7 +575,7 @@ export function CartPage({ onNavigateHome, onNavigateLegal }: CartPageProps) {
           </button>
 
           <p style={{ fontSize: 11, color: '#8A8A8E', lineHeight: 1.4, textAlign: 'center', marginTop: 10, marginBottom: 0 }}>
-            Нажимая кнопку «Оплатить заказ», вы соглашаетесь с условиями{' '}
+            Нажимая «Оплатить», вы принимаете условия{' '}
             <button
               onClick={onNavigateLegal}
               style={{
@@ -590,7 +590,7 @@ export function CartPage({ onNavigateHome, onNavigateLegal }: CartPageProps) {
                 font: 'inherit',
               }}
             >
-              Публичной оферты
+              Пользовательского соглашения
             </button>
             {' '}и{' '}
             <button
@@ -607,7 +607,7 @@ export function CartPage({ onNavigateHome, onNavigateLegal }: CartPageProps) {
                 font: 'inherit',
               }}
             >
-              Политикой конфиденциальности
+              Политики конфиденциальности
             </button>
           </p>
 
